@@ -1,14 +1,344 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hello World</title>
-  <link href='/style.css' rel='stylesheet'>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surfercho | Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: linear-gradient(180deg, hsl(0, 0%, 20%) 0%, hsl(0, 0%, 10%) 100%);
+            --text: #fff;
+            --ease: cubic-bezier(0.23, 1, 0.32, 1);
+            --transition: 1.1s var(--ease);
+            --radius: 12px;
+            --detail-top-padding: 0px; 
+            --strip-height: 65vh;
+        }
+        
+        * { 
+            margin: 0; padding: 0; box-sizing: border-box; 
+            -webkit-font-smoothing: antialiased; 
+            font-family: 'Inter', -apple-system, sans-serif;
+            cursor: default !important; 
+        }
+
+        body { background: var(--bg); color: var(--text); overflow: hidden; width: 100vw; height: 100vh; }
+        
+        #intro-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 10, 10, 0.6);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            z-index: 9000; display: flex; justify-content: center; align-items: center;
+            transition: opacity 1.2s var(--ease), visibility 1.2s;
+            cursor: pointer !important;
+        }
+        
+        .intro-logo {
+            font-size: 80px; font-weight: 200; letter-spacing: 25px;
+            text-transform: uppercase; color: #fff;
+            animation: introReveal 2.5s var(--ease) forwards;
+            pointer-events: none;
+        }
+
+        .click-to-enter {
+            position: absolute; bottom: 10%; font-size: 10px; letter-spacing: 4px;
+            opacity: 0.4; animation: pulse 2s infinite;
+        }
+
+        @keyframes introReveal {
+            0% { opacity: 0; transform: translateY(20px) scale(0.95); filter: blur(10px); }
+            100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.5; }
+        }
+
+        body.is-started #intro-screen { opacity: 0; visibility: hidden; }
+
+        nav { position: fixed; top: 0; width: 100%; padding: 40px 60px; display: flex; justify-content: space-between; align-items: center; z-index: 4000; pointer-events: none; }
+        .logo, .contact-trigger { pointer-events: auto; transition: opacity 0.5s var(--ease); }
+        .logo { letter-spacing: 5px; font-size: 14px; text-transform: uppercase; }
+        body.is-detail .logo { opacity: 0; pointer-events: none; }
+        
+        body:not(.is-started) nav { opacity: 0; }
+        body.is-started nav { opacity: 1; transition: opacity 1s var(--ease) 0.5s; }
+
+        .contact-trigger { font-size: 12px; letter-spacing: 2px; border-bottom: 1px solid #fff; z-index: 6000; cursor: pointer !important; }
+        .close-project { position: fixed; top: 40px; left: 60px; z-index: 6000; display: none; font-size: 12px; letter-spacing: 2px; mix-blend-mode: difference; cursor: pointer !important; }
+        body.is-detail .close-project { display: block; }
+
+        #detail-pagers {
+            position: fixed; top: 60px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 8px; z-index: 3500; opacity: 0; visibility: hidden;
+            transition: all 0.8s var(--ease); padding: 8px; border-radius: 8px;
+            max-width: 90vw; flex-wrap: wrap; justify-content: center;
+        }
+        body.is-detail #detail-pagers { opacity: 1; visibility: visible; }
+        .pager-item {
+            width: 35px; height: 25px; border-radius: 4px; background-size: cover;
+            background-position: center; opacity: 0.3; transition: all 0.4s var(--ease);
+            cursor: pointer !important; border: 1px solid rgba(255,255,255,0.2);
+            background-color: #333;
+        }
+        .pager-item:hover { opacity: 0.7; }
+        .pager-item.active { opacity: 1; border-color: #fff; transform: scale(1.1); }
+
+        #contact-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px); z-index: 7000; display: flex;
+            flex-direction: column; justify-content: center; align-items: center;
+            opacity: 0; visibility: hidden; transition: all 0.6s var(--ease);
+            cursor: pointer !important;
+        }
+        #contact-overlay.active { opacity: 1; visibility: visible; }
+        .contact-list { list-style: none; text-align: center; pointer-events: auto; }
+        .contact-item { margin: 20px 0; overflow: hidden; }
+        .contact-link {
+            font-size: 18px; font-weight: 300; text-transform: uppercase; letter-spacing: 6px; 
+            color: rgba(255, 255, 255, 0.5); text-decoration: none; display: inline-block; 
+            transition: color 0.4s var(--ease); cursor: pointer !important; position: relative; padding: 8px 0;
+        }
+        .contact-link:hover { color: rgba(255, 255, 255, 1); }
+        .contact-link::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 1px; background: #fff; transition: width 0.4s var(--ease); }
+        .contact-link:hover::after { width: 100%; }
+
+        #toast { position: fixed; bottom: 50px; left: 50%; transform: translateX(-50%); background: #fff; color: #000; padding: 12px 24px; font-size: 11px; font-weight: 600; letter-spacing: 2px; border-radius: 2px; opacity: 0; transition: opacity 0.4s var(--ease); z-index: 8000; pointer-events: none; }
+
+        #stage { 
+            position: relative; display: flex; width: 100vw; height: 100vh; 
+            justify-content: center; align-items: center; perspective: 2000px; 
+            overflow: hidden; transition: padding-top var(--transition), filter 1.5s var(--ease);
+            will-change: padding-top;
+        }
+        body:not(.is-started) #stage { filter: blur(20px) scale(1.1); }
+        body.is-detail #stage { padding-top: var(--detail-top-padding); }
+
+        .project-strip { 
+            position: relative; 
+            flex: 0 0 130px; 
+            height: var(--strip-height); 
+            margin: 0 10px; 
+            transition: flex var(--transition), height var(--transition), opacity var(--transition), transform var(--transition), margin var(--transition); 
+            border-radius: var(--radius); 
+            z-index: 10; display: flex; align-items: center; justify-content: center; 
+            opacity: 0.4; background-size: cover; background-position: center;
+            background-color: #222;
+            will-change: flex, transform, height;
+        }
+        body:not(.is-detail) .project-strip:hover { opacity: 1; }
+        
+        .project-strip.expanded { 
+            height: var(--strip-height); 
+            flex: 0 0 calc(var(--strip-height) * 16 / 9);
+            z-index: 3000; opacity: 1 !important; margin: 0; transform: translateX(0); 
+            background-image: none !important; 
+        }
+        
+        .project-strip.collapsed { 
+            flex: 0 0 0px; 
+            opacity: 0 !important; 
+            pointer-events: none; 
+            margin: 0;
+            transform: scale(0.8) translateY(50px);
+        }
+
+        .side-peek { position: absolute; top: 50%; width: 12vw; height: 100%; transform: translateY(-50%); border-radius: var(--radius); background-size: cover; background-position: center; opacity: 0; visibility: hidden; transition: opacity 0.8s var(--ease), visibility 0.8s; z-index: 1500; cursor: pointer !important; background-color: #333; }
+        body.is-detail .side-peek { opacity: 0.25; visibility: visible; }
+        body.is-detail .side-peek:hover { opacity: 0.5; }
+        .peek-prev { left: -14vw; transform: translateY(-50%) rotateY(15deg); }
+        .peek-next { right: -14vw; transform: translateY(-50%) rotateY(-15deg); }
+        
+        .strip-img-wrapper { 
+            width: 100%; height: 100%; position: absolute; border-radius: var(--radius); overflow: hidden; z-index: 1; 
+            background-color: transparent; 
+        }
+        .project-strip.expanded .strip-img-wrapper { background-color: #000; }
+
+        .detail-photos { position: absolute; width: 100%; height: 100%; opacity: 0; transition: opacity 0.6s var(--ease); z-index: 2; }
+        .expanded .detail-photos { opacity: 1; }
+        
+        .photo { 
+            position: absolute; width: 100%; height: 100%; opacity: 0; transition: opacity 0.8s var(--ease); 
+            background-size: cover; background-repeat: no-repeat; background-position: center; background-color: transparent; 
+        }
+        .photo.active { opacity: 1; }
+        
+        .photo-nav {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            background: none; color: rgba(255, 255, 255, 0.3); 
+            font-size: 54px; font-weight: 200; z-index: 10;
+            opacity: 0; visibility: hidden; transition: opacity 0.3s var(--ease);
+            cursor: default !important; user-select: none; outline: none;
+        }
+        .project-strip.expanded .photo-nav { opacity: 1; visibility: visible; }
+        
+        .photo-nav-prev { left: 30px; }
+        .photo-nav-next { right: 30px; }
+        
+        .thumb-title { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-90deg); font-size: 11px; font-weight: 300; letter-spacing: 5px; opacity: 0.6; z-index: 10; text-transform: uppercase; white-space: nowrap; transition: opacity 0.4s; }
+        .project-strip.expanded .thumb-title { opacity: 0; }
+        #fixed-expanded-title { position: fixed; bottom: 4vh; left: 50%; transform: translateX(-50%); z-index: 4000; opacity: 0; transition: opacity 0.8s var(--ease) 0.3s; }
+        body.is-detail #fixed-expanded-title { opacity: 1; }
+        .expanded-title { font-size: 16px; font-weight: 400; letter-spacing: 10px; color: #fff; text-transform: uppercase; }
+    </style>
 </head>
-<body>
-  <h1>Hello, world!</h1>
-  <button onclick="console.log('hello');">Press me</button>
-  <script defer type="text/javascript" src="/main.js"></script>
+<body onclick="handleIntroClick()">
+
+    <div id="intro-screen">
+        <div class="intro-logo">Surfercho</div>
+        <div class="click-to-enter">CLICK ANYWHERE TO ENTER</div>
+    </div>
+
+    <nav>
+        <div class="logo">Surfercho</div>
+        <div class="contact-trigger" onclick="event.stopPropagation(); toggleContact();">CONTACT</div>
+    </nav>
+    <div class="close-project" onclick="shrinkProject()">← BACK</div>
+    <div id="detail-pagers"></div>
+    <div id="fixed-expanded-title"><div class="expanded-title"></div></div>
+
+    <div id="contact-overlay" onclick="toggleContact()">
+        <ul class="contact-list" onclick="event.stopPropagation()">
+            <li class="contact-item"><a class="contact-link" onclick="copyEmail('ckh.design@gmail.com')">Gmail</a></li>
+            <li class="contact-item"><a href="https://linkedin.com" target="_blank" class="contact-link">LinkedIn</a></li>
+            <li class="contact-item"><a href="https://behance.net" target="_blank" class="contact-link">Behance</a></li>
+            <li class="contact-item"><a href="https://instagram.com" target="_blank" class="contact-link">Instagram</a></li>
+        </ul>
+    </div>
+
+    <div id="toast">EMAIL COPIED</div>
+    <div id="stage"></div>
+
+    <script>
+        const titles = ['A-Project', 'B-Project', 'C-Project', 'D-Project', 'E-Project', 'F-Project', 'G-Project'];
+        const photosPerProject = 10;
+        const stage = document.getElementById('stage');
+        const body = document.body;
+        const expandedTitleText = document.querySelector('.expanded-title');
+        const contactOverlay = document.getElementById('contact-overlay');
+        const pagerContainer = document.getElementById('detail-pagers'); 
+
+        function handleIntroClick() {
+            if (!body.classList.contains('is-started')) body.classList.add('is-started');
+        }
+
+        const getPicsumUrl = (id) => `https://picsum.photos/seed/${id}/1600/900`;
+
+        const projectImages = titles.map((_, i) => 
+            Array.from({ length: photosPerProject }, (_, pIdx) => getPicsumUrl(`project-${i}-${pIdx}`))
+        );
+
+        stage.innerHTML = titles.map((t, i) => `
+            <div class="project-strip strip-${i}" data-title="${t}" data-index="${i}" style="background-image: url('${projectImages[i][0]}')">
+                <div class="side-peek peek-prev"></div>
+                <div class="side-peek peek-next"></div>
+                <div class="thumb-title">${t}</div>
+                <div class="strip-img-wrapper">
+                    <div class="photo-nav photo-nav-prev" onclick="event.stopPropagation(); navigatePhoto(${i}, -1)">&#10216;</div>
+                    <div class="photo-nav photo-nav-next" onclick="event.stopPropagation(); navigatePhoto(${i}, 1)">&#10217;</div>
+                    <div class="detail-photos">
+                        ${projectImages[i].map((imgUrl, imgIdx) => `
+                            <div class="photo ${imgIdx === 0 ? 'active' : ''}" style="background-image: url('${imgUrl}')"></div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        const strips = document.querySelectorAll('.project-strip');
+
+        strips.forEach(strip => {
+            strip.addEventListener('click', function(e) {
+                if (!body.classList.contains('is-started')) return;
+                const idx = parseInt(this.dataset.index);
+                if (this.classList.contains('expanded')) {
+                    const rect = this.getBoundingClientRect();
+                    rotatePhotos(this, (e.clientX - rect.left) < rect.width / 2 ? -1 : 1);
+                    return;
+                }
+                showProject(idx);
+            });
+        });
+
+        function navigatePhoto(projectIdx, direction) {
+            rotatePhotos(strips[projectIdx], direction);
+        }
+
+        function showProject(index) {
+            const currentStrip = strips[index];
+            if (expandedTitleText) expandedTitleText.innerText = currentStrip.dataset.title;
+            body.classList.add('is-detail');
+            
+            const photos = currentStrip.querySelectorAll('.photo');
+            pagerContainer.innerHTML = Array.from(photos).map((photo, pIdx) => `
+                <div class="pager-item ${pIdx === 0 ? 'active' : ''}" 
+                     style="${photo.getAttribute('style')}"
+                     onclick="event.stopPropagation(); jumpToPhoto(${index}, ${pIdx})"></div>
+            `).join('');
+
+            strips.forEach((s, i) => {
+                s.classList.remove('expanded', 'collapsed');
+                if(i === index) {
+                    s.classList.add('expanded');
+                    updatePeeks(s, i);
+                } else {
+                    s.classList.add('collapsed');
+                }
+            });
+        }
+
+        function jumpToPhoto(projectIdx, photoIdx) {
+            const strip = strips[projectIdx];
+            const photos = strip.querySelectorAll('.photo');
+            const pagers = pagerContainer.querySelectorAll('.pager-item');
+            photos.forEach((p, i) => p.classList.toggle('active', i === photoIdx));
+            pagers.forEach((pager, i) => pager.classList.toggle('active', i === photoIdx));
+        }
+
+        function rotatePhotos(strip, dir) {
+            const photos = strip.querySelectorAll('.photo');
+            const pagers = pagerContainer.querySelectorAll('.pager-item');
+            if(!pagers.length) return;
+            let activeIdx = Array.from(photos).findIndex(p => p.classList.contains('active'));
+            photos[activeIdx].classList.remove('active');
+            pagers[activeIdx].classList.remove('active');
+            activeIdx = (activeIdx + dir + photos.length) % photos.length;
+            photos[activeIdx].classList.add('active');
+            pagers[activeIdx].classList.add('active');
+        }
+
+        function updatePeeks(parent, currentIdx) {
+            const prevIdx = (currentIdx - 1 + titles.length) % titles.length;
+            const nextIdx = (currentIdx + 1) % titles.length;
+            const prevPeek = parent.querySelector('.peek-prev');
+            const nextPeek = parent.querySelector('.peek-next');
+            prevPeek.style.backgroundImage = `url('${projectImages[prevIdx][0]}')`;
+            nextPeek.style.backgroundImage = `url('${projectImages[nextIdx][0]}')`;
+            prevPeek.onclick = (e) => { e.stopPropagation(); showProject(prevIdx); };
+            nextPeek.onclick = (e) => { e.stopPropagation(); showProject(nextIdx); };
+        }
+
+        function shrinkProject() {
+            body.classList.remove('is-detail');
+            setTimeout(() => {
+                strips.forEach(s => s.classList.remove('expanded', 'collapsed'));
+                pagerContainer.innerHTML = '';
+            }, 10); 
+            document.querySelectorAll('.photo').forEach(p => p.classList.toggle('active', p.parentElement.children[0] === p));
+        }
+
+        function toggleContact() { contactOverlay.classList.toggle('active'); }
+        function copyEmail(email) {
+            navigator.clipboard.writeText(email).then(() => {
+                const toast = document.getElementById('toast');
+                toast.style.opacity = '1';
+                setTimeout(() => { toast.style.opacity = '0'; }, 2000);
+            });
+        }
+    </script>
 </body>
 </html>
