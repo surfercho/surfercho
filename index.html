@@ -228,9 +228,13 @@
 
         const getPicsumUrl = (id) => `https://picsum.photos/seed/${id}/1600/900`;
 
-        const projectImages = titles.map((_, i) => 
-            Array.from({ length: photosPerProject }, (_, pIdx) => getPicsumUrl(`project-${i}-${pIdx}`))
-        );
+        const projectImages = titles.map((_, i) => {
+            if (i === 0) {
+                // A-Project (index 0) uses local PNG files
+                return Array.from({ length: photosPerProject }, (_, pIdx) => `assets/project-a/a (${pIdx + 1}).png`);
+            }
+            return Array.from({ length: photosPerProject }, (_, pIdx) => getPicsumUrl(`project-${i}-${pIdx}`));
+        });
 
         stage.innerHTML = titles.map((t, i) => `
             <div class="project-strip strip-${i}" data-title="${t}" data-index="${i}" style="background-image: url('${projectImages[i][0]}')">
