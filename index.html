@@ -137,6 +137,20 @@
             z-index: 3000; opacity: 1 !important; margin: 0; transform: translateX(0); 
             background-image: none !important; 
         }
+
+        /* Ambient Glow Layer */
+        .glow-layer {
+            position: absolute;
+            top: -10%; left: -10%; width: 120%; height: 120%;
+            background: transparent;
+            filter: blur(80px);
+            opacity: 0;
+            transition: background 1.5s var(--ease), opacity 1.5s var(--ease);
+            z-index: 0;
+            pointer-events: none;
+            border-radius: 50%;
+        }
+        .project-strip.expanded .glow-layer { opacity: 0.5; }
         
         .project-strip.collapsed { 
             flex: 0 0 0px; 
@@ -238,6 +252,7 @@
 
         stage.innerHTML = titles.map((t, i) => `
             <div class="project-strip strip-${i}" data-title="${t}" data-index="${i}" style="background-image: url('${projectImages[i][0]}')">
+                <div class="glow-layer"></div>
                 <div class="side-peek peek-prev"></div>
                 <div class="side-peek peek-next"></div>
                 <div class="thumb-title">${t}</div>
@@ -254,6 +269,25 @@
         `).join('');
 
         const strips = document.querySelectorAll('.project-strip');
+
+        function updateGlowColor(strip) {
+            const activePhoto = strip.querySelector('.photo.active');
+            const glowLayer = strip.querySelector('.glow-layer');
+            if (!activePhoto || !glowLayer) return;
+
+            const imgUrl = activePhoto.style.backgroundImage.replace(/url\(['"]?(.*?)['"]?\)/, '$1');
+            const img = new Image();
+            img.crossOrigin = "Anonymous";
+            img.src = imgUrl;
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = 1; canvas.height = 1;
+                ctx.drawImage(img, 0, 0, 1, 1);
+                const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+                glowLayer.style.background = `radial-gradient(circle, rgba(${r},${g},${b},0.8) 0%, rgba(${r},${g},${b},0) 70%)`;
+            };
+        }
 
         strips.forEach(strip => {
             strip.addEventListener('click', function(e) {
@@ -289,6 +323,7 @@
                 if(i === index) {
                     s.classList.add('expanded');
                     updatePeeks(s, i);
+                    updateGlowColor(s);
                 } else {
                     s.classList.add('collapsed');
                 }
@@ -301,6 +336,7 @@
             const pagers = pagerContainer.querySelectorAll('.pager-item');
             photos.forEach((p, i) => p.classList.toggle('active', i === photoIdx));
             pagers.forEach((pager, i) => pager.classList.toggle('active', i === photoIdx));
+            updateGlowColor(strip);
         }
 
         function rotatePhotos(strip, dir) {
@@ -313,6 +349,7 @@
             activeIdx = (activeIdx + dir + photos.length) % photos.length;
             photos[activeIdx].classList.add('active');
             pagers[activeIdx].classList.add('active');
+            updateGlowColor(strip);
         }
 
         function updatePeeks(parent, currentIdx) {
