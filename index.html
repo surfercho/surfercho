@@ -135,19 +135,6 @@
             z-index: 3000; opacity: 1 !important; margin: 0; transform: translateX(0); 
         }
 
-        #ambient-glow {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: calc(var(--strip-height) * 16 / 9); height: var(--strip-height);
-            border-radius: var(--radius); opacity: 0; z-index: 8; pointer-events: none;
-            transition: opacity 1.8s var(--ease);
-        }
-        #ambient-glow::after {
-            content: ''; position: absolute; inset: 0; border-radius: var(--radius);
-            background: inherit; filter: blur(55px); transform: scale(1.18);
-            opacity: 0.75; z-index: -1;
-        }
-        body.is-detail #ambient-glow { opacity: 1; }
-        
         .project-strip.collapsed { 
             flex: 0 0 0px; 
             opacity: 0 !important; 
@@ -223,7 +210,6 @@
     </div>
 
     <div id="toast">EMAIL COPIED</div>
-    <div id="ambient-glow"></div>
     <div id="stage"></div>
 
     <script>
@@ -233,7 +219,6 @@
         const expandedTitleText = document.querySelector('.expanded-title');
         const contactOverlay = document.getElementById('contact-overlay');
         const pagerContainer = document.getElementById('detail-pagers'); 
-        const ambientGlow = document.getElementById('ambient-glow');
 
         function handleIntroClick() {
             if (!body.classList.contains('is-started')) body.classList.add('is-started');
@@ -267,29 +252,6 @@
         `).join('');
 
         const strips = document.querySelectorAll('.project-strip');
-
-        function updateGlowColor(strip) {
-            const activePhoto = strip.querySelector('.photo.active');
-            if (!activePhoto || !ambientGlow) return;
-            const imgUrl = activePhoto.style.backgroundImage.replace(/url\(['"]?(.*?)['"]?\)/, '$1');
-            const img = new Image();
-            if (imgUrl.startsWith('http')) img.crossOrigin = 'Anonymous';
-            img.src = imgUrl;
-            img.onload = function() {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                const sz = 5;
-                canvas.width = sz; canvas.height = sz;
-                ctx.drawImage(img, 0, 0, sz, sz);
-                try {
-                    const d = ctx.getImageData(0, 0, sz, sz).data;
-                    let rSum=0, gSum=0, bSum=0, count=sz*sz;
-                    for (let i=0; i<d.length; i+=4){ rSum+=d[i]; gSum+=d[i+1]; bSum+=d[i+2]; }
-                    const r=Math.round(rSum/count), g=Math.round(gSum/count), b=Math.round(bSum/count);
-                    ambientGlow.style.background = `rgb(${r},${g},${b})`;
-                } catch(e) {}
-            };
-        }
 
         strips.forEach(strip => {
             strip.addEventListener('click', function(e) {
@@ -330,7 +292,6 @@
                 if(i === index) {
                     s.classList.add('expanded');
                     updatePeeks(s, i);
-                    updateGlowColor(s);
                 } else {
                     s.classList.add('collapsed');
                 }
@@ -343,7 +304,6 @@
             const pagers = pagerContainer.querySelectorAll('.pager-item');
             photos.forEach((p, i) => p.classList.toggle('active', i === photoIdx));
             pagers.forEach((pager, i) => pager.classList.toggle('active', i === photoIdx));
-            updateGlowColor(strip);
         }
 
         function rotatePhotos(strip, dir) {
@@ -356,7 +316,6 @@
             activeIdx = (activeIdx + dir + photos.length) % photos.length;
             photos[activeIdx].classList.add('active');
             pagers[activeIdx].classList.add('active');
-            updateGlowColor(strip);
         }
 
         function updatePeeks(parent, currentIdx) {
@@ -372,10 +331,6 @@
 
         function shrinkProject() {
             body.classList.remove('is-detail');
-            if (ambientGlow) {
-                ambientGlow.style.opacity = "0";
-                setTimeout(() => { ambientGlow.style.background = 'transparent'; }, 1800);
-            }
             setTimeout(() => {
                 strips.forEach(s => s.classList.remove('expanded', 'collapsed'));
                 pagerContainer.innerHTML = '';
