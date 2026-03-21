@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: linear-gradient(180deg, hsl(0, 0%, 50%) 0%, hsl(0, 0%, 40%) 100%);
+            --bg: linear-gradient(180deg, hsl(0, 0%, 20%) 0%, hsl(0, 0%, 10%) 100%);
             --text: #fff;
             --ease: cubic-bezier(0.23, 1, 0.32, 1);
             --transition: 1.1s var(--ease);
@@ -180,9 +180,9 @@
         
         .thumb-title { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-90deg); font-size: 11px; font-weight: 300; letter-spacing: 5px; opacity: 0.6; z-index: 10; text-transform: uppercase; white-space: nowrap; transition: opacity 0.4s; }
         .project-strip.expanded .thumb-title { opacity: 0; }
-        #fixed-expanded-title { position: fixed; bottom: 4vh; left: 50%; transform: translateX(-50%); z-index: 4000; opacity: 0; transition: opacity 0.8s var(--ease) 0.3s; }
+        #fixed-expanded-title { position: fixed; top: calc(100vh - 160px); left: 50%; transform: translateX(-50%); z-index: 4000; opacity: 0; transition: opacity 0.8s var(--ease) 0.3s; }
         body.is-detail #fixed-expanded-title { opacity: 1; }
-        .expanded-title { font-size: 16px; font-weight: 400; letter-spacing: 10px; color: #fff; text-transform: uppercase; }
+        .expanded-title { font-size: 16px; font-weight: 400; letter-spacing: 10px; color: #fff; text-transform: uppercase; line-height: 1; }
     </style>
 </head>
 <body onclick="handleIntroClick()">
