@@ -130,8 +130,8 @@
         body:not(.is-detail) .project-strip:hover { opacity: 1; transform: translate(-50%, -50%) scale(1.05); transition: opacity 0.3s ease, transform var(--transition); }
         
         .project-strip.peek:hover {
-            opacity: 0.5 !important;
-            transition: opacity 0.4s var(--ease) !important;
+            opacity: 0.6 !important;
+            transition: width var(--transition), height var(--transition), transform var(--transition), left var(--transition), opacity 0.3s ease, z-index 0s !important;
         }
         
         .strip-img-wrapper { width: 100%; height: 100%; position: absolute; border-radius: var(--radius); overflow: hidden; z-index: 1; background-color: transparent; }
@@ -268,7 +268,7 @@
                         s.style.left = '10vw';
                         s.style.width = '12vw';
                         s.style.height = 'var(--strip-height)';
-                        s.style.transform = 'translate(-50%, -50%) rotateY(15deg)';
+                        s.style.transform = 'translate(-50%, -50%) rotateY(15deg) scale(1.077)';
                         s.style.opacity = '0.25';
                         s.style.zIndex = '1500';
                         s.style.pointerEvents = 'auto';
@@ -278,7 +278,7 @@
                         s.style.left = '90vw';
                         s.style.width = '12vw';
                         s.style.height = 'var(--strip-height)';
-                        s.style.transform = 'translate(-50%, -50%) rotateY(-15deg)';
+                        s.style.transform = 'translate(-50%, -50%) rotateY(-15deg) scale(1.077)';
                         s.style.opacity = '0.25';
                         s.style.zIndex = '1500';
                         s.style.pointerEvents = 'auto';
@@ -349,8 +349,31 @@
 
         function shrinkProject() {
             body.classList.remove('is-detail');
+            const oldIndex = currentDetailIndex;
             currentDetailIndex = -1;
+            
+            strips.forEach((s, i) => {
+                if (i !== oldIndex) s.style.transition = 'none';
+            });
+            
             updateStripPositions();
+            
+            strips.forEach((s, i) => {
+                if (i !== oldIndex) s.style.opacity = '0';
+            });
+
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    strips.forEach((s, i) => {
+                        if (i !== oldIndex) {
+                            s.style.transition = 'opacity 0.6s var(--ease)';
+                            s.style.opacity = '0.4';
+                            setTimeout(() => s.style.transition = '', 600);
+                        }
+                    });
+                });
+            });
+
             pagerContainer.innerHTML = '';
             document.querySelectorAll('.photo').forEach(p => p.classList.toggle('active', p.parentElement.children[0] === p));
         }
