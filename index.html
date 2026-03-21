@@ -386,21 +386,31 @@
             
             updateStripPositions();
             
+            const otherStrips = [];
             strips.forEach((s, i) => {
-                if (i !== oldIndex) s.style.opacity = '0';
+                if (i !== oldIndex) {
+                    s.style.opacity = '0';
+                    otherStrips.push(s);
+                }
             });
 
-            // Delay fade-in of other strips until main strip fully returns (approx 1.1s)
+            // Randomize order
+            for (let i = otherStrips.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [otherStrips[i], otherStrips[j]] = [otherStrips[j], otherStrips[i]];
+            }
+
+            // Start 0.5s before main strip finishes (1.1s - 0.5s = 0.6s)
             setTimeout(() => {
-                strips.forEach((s, i) => {
-                    if (i !== oldIndex) {
-                        const randomDelay = (Math.random() * 0.15).toFixed(2);
-                        s.style.transition = `opacity 0.15s ease ${randomDelay}s`;
-                        s.style.opacity = '0.4';
-                        setTimeout(() => s.style.transition = '', 400);
-                    }
+                otherStrips.forEach((s, idx) => {
+                    const delay = (idx * (1.6 / 5)).toFixed(2);
+                    s.style.transition = `opacity 0.4s ease ${delay}s`;
+                    s.style.opacity = '0.4';
+                    
+                    const totalWait = (parseFloat(delay) + 0.4) * 1000 + 100;
+                    setTimeout(() => s.style.transition = '', totalWait);
                 });
-            }, 1100);
+            }, 600);
 
             pagerContainer.innerHTML = '';
             document.querySelectorAll('.photo').forEach(p => p.classList.toggle('active', p.parentElement.children[0] === p));
