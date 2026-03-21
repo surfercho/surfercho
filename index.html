@@ -394,9 +394,10 @@
             setTimeout(() => {
                 strips.forEach((s, i) => {
                     if (i !== oldIndex) {
-                        s.style.transition = 'opacity 0.8s var(--ease)';
+                        const randomDelay = (Math.random() * 0.15).toFixed(2);
+                        s.style.transition = `opacity 0.15s ease ${randomDelay}s`;
                         s.style.opacity = '0.4';
-                        setTimeout(() => s.style.transition = '', 800);
+                        setTimeout(() => s.style.transition = '', 400);
                     }
                 });
             }, 1100);
