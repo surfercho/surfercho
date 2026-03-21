@@ -200,125 +200,118 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
     #tablet-layout  { display:none !important; }
 }
 
-/* ── TABLET ── */
+/* ── TABLET — PC 스트립 레이아웃 그대로 사용 ── */
 @media (min-width: 769px) and (max-width: 1024px) {
     nav { padding:28px 36px; }
 
     .close-project {
         position:fixed; top:28px; left:36px; z-index:6000; display:none;
-        font-size:12px; letter-spacing:2px; cursor:pointer !important;
+        font-size:12px; letter-spacing:2px; mix-blend-mode:difference; cursor:pointer !important;
     }
     body.is-detail .close-project { display:block; }
     body.is-detail .logo { opacity:0; pointer-events:none; }
-    body.is-detail nav { pointer-events:none; }
-    body.is-detail .contact-trigger { pointer-events:auto; }
 
-    #stage                { display:none !important; }
-    #detail-pagers        { display:none !important; }
-    #fixed-expanded-title { display:none !important; }
+    /* 태블릿 전용 레이아웃 완전히 숨기고 PC용 #stage 활성화 */
+    #tablet-layout        { display:none !important; }
     #mobile-layout        { display:none !important; }
 
-    #tablet-layout { display:block; position:fixed; inset:0; }
-
-    #tab-gallery-wrap {
-        position:absolute; inset:0; overflow:hidden;
-        transition:opacity 0.5s var(--ease), visibility 0.5s;
+    /* PC용 요소들 태블릿에서도 표시 */
+    #stage {
+        display:flex !important;
+        position:relative; width:100vw; height:100vh;
+        justify-content:center; align-items:center; perspective:2000px; overflow:hidden;
+        transition:padding-top var(--transition), filter 1.5s var(--ease), background-color var(--transition);
+        user-select:none;
     }
-    body.is-detail #tab-gallery-wrap { opacity:0; visibility:hidden; pointer-events:none; }
-    body:not(.is-started) #tab-gallery-wrap { filter:blur(16px); }
+    body:not(.is-started) #stage { filter:blur(20px) scale(1.1); }
+    body.is-detail #stage { background-color:rgba(0,0,0,0.7); }
 
-    #tab-track {
-        display:flex; flex-direction:row; align-items:center; height:100%;
-        padding:0 calc(50vw - 140px); gap:20px; will-change:transform;
+    /* 태블릿은 터치 드래그 중 커서 변경 불필요하지만 일관성 유지 */
+    #stage.is-dragging,
+    #stage.is-dragging * { cursor:grabbing !important; }
+
+    #detail-pagers {
+        display:flex !important;
+        position:fixed; top:80px; left:50%; transform:translateX(-50%);
+        gap:6px; z-index:3500; opacity:0; visibility:hidden;
+        transition:all 0.8s var(--ease); padding:6px; border-radius:8px;
+        max-width:90vw; flex-wrap:wrap; justify-content:center;
     }
-
-    .tab-card {
-        flex-shrink:0; width:280px; height:62vh; border-radius:var(--radius);
-        overflow:hidden; position:relative; opacity:0.45; cursor:pointer !important;
-        transition:opacity 0.3s ease, transform 0.3s ease;
+    body.is-detail #detail-pagers { opacity:1; visibility:visible; }
+    .pager-item {
+        width:56px; height:40px; border-radius:4px; background-size:cover; background-position:center;
+        opacity:0.3; transition:all 0.4s var(--ease); cursor:pointer !important;
+        border:1px solid rgba(255,255,255,0.2); background-color:#333;
     }
-    .tab-card:active { opacity:0.9; transform:scale(0.97); }
-    .tab-card-bg { position:absolute; inset:0; background-size:cover; background-position:center; }
-    .tab-card-overlay { position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 50%); }
-    .tab-card-title {
-        position:absolute; bottom:16px; left:18px;
-        font-size:11px; font-weight:300; letter-spacing:5px;
-        text-transform:uppercase; color:#fff; opacity:0.85;
+    .pager-item:hover { opacity:0.7; }
+    .pager-item.active { opacity:1; border-color:#fff; transform:scale(1.1); }
+
+    #fixed-expanded-title {
+        display:block !important;
+        position:fixed; top:calc(100vh - 130px); left:50%; transform:translateX(-50%);
+        z-index:4000; opacity:0; transition:opacity 0.8s var(--ease) 0.3s;
     }
+    body.is-detail #fixed-expanded-title { opacity:1; }
+    .expanded-title { font-size:13px; font-weight:400; letter-spacing:8px; color:#fff; text-transform:uppercase; line-height:1; }
 
-    #tab-nav-border {
-        position:fixed; top:0; left:0; right:0; height:80px;
-        background:linear-gradient(to bottom, hsl(0,0%,18%) 0%, hsl(0,0%,18%) 65%, transparent 100%);
-        pointer-events:none; z-index:3500; opacity:0; transition:opacity 0.4s var(--ease);
+    /* 스트립 — PC와 동일한 스타일 (터치 이벤트 허용) */
+    .project-strip {
+        position:absolute; top:50%; transform:translate(-50%,-50%);
+        border-radius:var(--radius); z-index:10;
+        display:flex; align-items:center; justify-content:center;
+        opacity:0.4; background-color:transparent;
+        transition:width var(--transition), height var(--transition),
+                   transform var(--transition), left var(--transition), opacity 0.4s ease, z-index 0s;
+        will-change:transform, width, height, left; cursor:pointer !important; overflow:hidden;
     }
-    body.is-detail #tab-nav-border { opacity:1; }
-
-    #tab-detail {
-        position:absolute; inset:0; background:var(--bg); z-index:2000;
-        display:flex; flex-direction:column; align-items:center; justify-content:center;
-        gap:24px; opacity:0; visibility:hidden;
-        transition:opacity 0.7s var(--ease), visibility 0.7s;
-        pointer-events:none; overflow:hidden;
+    body:not(.is-detail) .project-strip:not(.expanded):not(.peek):hover {
+        opacity:1 !important;
+        transition:opacity 0.25s ease, width var(--transition), height var(--transition),
+                   transform var(--transition), left var(--transition), z-index 0s;
     }
-    body.is-detail #tab-detail { opacity:1; visibility:visible; pointer-events:auto; }
-
-    .tab-peek-card {
-        width:calc(100% - 120px); aspect-ratio:16/9;
-        border-radius:var(--radius); overflow:hidden; flex-shrink:0;
-        position:relative; opacity:0.22; cursor:pointer !important;
-        background-size:cover; background-position:center;
-        transition:opacity 0.6s var(--ease), transform 0.6s var(--ease);
-    }
-    .tab-peek-card:active { opacity:0.45; }
-    #tab-peek-top    { transform:scale(0.88); transform-origin:bottom center; }
-    #tab-peek-bottom { transform:scale(0.88); transform-origin:top center; }
-
-    .tab-peek-label {
-        position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-        font-size:9px; font-weight:300; letter-spacing:4px;
-        text-transform:uppercase; color:rgba(255,255,255,0.55);
-        background:rgba(0,0,0,0.5); pointer-events:none;
-    }
-
-    #tab-main-block { display:flex; flex-direction:column; align-items:center; gap:16px; width:100%; flex-shrink:0; }
-
-    #tab-viewer {
-        position:relative; width:calc(100% - 80px); aspect-ratio:16/9;
-        border-radius:var(--radius); overflow:hidden; flex-shrink:0;
-        z-index:2; box-shadow:0 20px 60px rgba(0,0,0,0.6);
+    body:not(.is-detail) .project-strip:not(.expanded):not(.peek):hover .strip-img-wrapper
+        { transform:scale(1.07); transition:transform 0.5s var(--ease); }
+    body:not(.is-detail) .project-strip:not(.expanded):not(.peek):hover .thumb-title
+        { opacity:1; transition:opacity 0.25s ease; }
+    .project-strip.peek:hover {
+        opacity:0.6 !important;
+        transition:width var(--transition), height var(--transition),
+                   transform var(--transition), left var(--transition), opacity 0.3s ease, z-index 0s !important;
     }
 
-    .tab-slide {
-        position:absolute; inset:0; background-size:cover; background-position:center;
-        opacity:0; transition:opacity 0.65s var(--ease); pointer-events:none;
+    .strip-img-wrapper {
+        width:100%; height:100%; position:absolute; border-radius:var(--radius);
+        overflow:hidden; z-index:1; background-color:transparent;
+        transition:transform 0.5s var(--ease); background-size:cover; background-position:center;
     }
-    .tab-slide.active { opacity:1; pointer-events:auto; }
+    .project-strip.expanded .strip-img-wrapper { background-color:#000; }
 
-    .tab-tap-zone { position:absolute; top:0; bottom:0; width:50%; z-index:5; cursor:pointer !important; }
-    #tab-tap-prev { left:0; }
-    #tab-tap-next { right:0; }
+    .detail-photos { position:absolute; width:100%; height:100%; opacity:0; transition:opacity 0.6s var(--ease); z-index:2; }
+    .expanded .detail-photos { opacity:1; }
 
-    #tab-info-bar { width:calc(100% - 80px); display:flex; flex-direction:column; align-items:center; gap:10px; flex-shrink:0; }
-    #tab-detail-title {
-        font-size:12px; font-weight:300; letter-spacing:8px;
-        text-transform:uppercase; color:rgba(255,255,255,0.55); text-align:center;
+    .photo {
+        position:absolute; width:100%; height:100%; opacity:0;
+        transition:opacity 0.8s var(--ease);
+        background-size:cover; background-repeat:no-repeat; background-position:center;
     }
+    .photo.active { opacity:1; }
 
-    #tab-thumbs {
-        display:flex; gap:8px; flex-wrap:nowrap; width:100%; overflow-x:auto; overflow-y:visible;
-        overscroll-behavior-x:contain; scrollbar-width:none; -ms-overflow-style:none;
-        padding:2px 2px 4px; box-sizing:border-box;
+    .photo-nav {
+        position:absolute; top:50%; transform:translateY(-50%);
+        background:none; color:rgba(255,255,255,0.3); font-size:44px; font-weight:200;
+        z-index:10; opacity:0; visibility:hidden; transition:opacity 0.3s var(--ease);
+        cursor:default !important; user-select:none; outline:none;
     }
-    #tab-thumbs::-webkit-scrollbar { display:none; }
+    .project-strip.expanded .photo-nav { opacity:1; visibility:visible; }
+    .photo-nav-prev { left:20px; }
+    .photo-nav-next { right:20px; }
 
-    .tab-thumb {
-        width:52px; height:36px; border-radius:4px; flex-shrink:0;
-        background-size:cover; background-position:center; opacity:0.3;
-        border:1px solid rgba(255,255,255,0.1);
-        transition:opacity 0.3s var(--ease), border-color 0.3s, transform 0.3s var(--ease);
-        cursor:pointer !important;
+    .thumb-title {
+        position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) rotate(-90deg);
+        font-size:10px; font-weight:300; letter-spacing:4px; opacity:0.6; z-index:10;
+        text-transform:uppercase; white-space:nowrap; transition:opacity 0.4s;
     }
-    .tab-thumb.active { opacity:1; border-color:#fff; transform:scale(1.1); }
+    .project-strip.expanded .thumb-title { opacity:0; }
 }
 
 /* ── MOBILE ── */
@@ -579,9 +572,8 @@ function copyEmail(email) {
     });
 }
 function shrinkProject() {
-    if (isMobile())      mobShrink();
-    else if (isTablet()) tabShrink();
-    else                 pcShrink();
+    if (isMobile()) mobShrink();
+    else            pcShrink();
 }
 
 /* ═══════════════════════════════════════
@@ -663,7 +655,7 @@ function shrinkProject() {
 
     /* ── mousedown: 드래그 시작 ── */
     stage.addEventListener('mousedown', e => {
-        if (body.classList.contains('is-detail') || isMobile() || isTablet()) return;
+        if (body.classList.contains('is-detail') || isMobile()) return;
         dragActive   = true;
         dragMoved    = false;
         dragStartX   = e.clientX;
@@ -758,9 +750,94 @@ function shrinkProject() {
         }
     });
 
+    /* ── 터치 드래그 (태블릿) ── */
+    let touchStartX = 0, touchStartOff = 0, touchLastX = 0, touchMoved = false;
+
+    stage.addEventListener('touchstart', e => {
+        if (body.classList.contains('is-detail') || isMobile()) return;
+        const t = e.touches[0];
+        touchStartX  = t.clientX;
+        touchStartOff = scrollOffsetX;
+        touchLastX   = t.clientX;
+        touchMoved   = false;
+        velX = 0; overX = 0;
+        if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    }, { passive: true });
+
+    stage.addEventListener('touchmove', e => {
+        if (body.classList.contains('is-detail') || isMobile()) return;
+        const t   = e.touches[0];
+        const dx  = touchLastX - t.clientX;
+        touchLastX = t.clientX;
+        velX = dx;
+
+        if (Math.abs(t.clientX - touchStartX) > DRAG_THRESHOLD) touchMoved = true;
+
+        const totalDelta = touchStartX - t.clientX;
+        const raw        = touchStartOff + totalDelta;
+        const max        = maxOffset();
+
+        if (raw < 0) {
+            scrollOffsetX = 0;
+            overX = raw * RESIST;
+            if (overX < -MAX_OVER) overX = -MAX_OVER;
+        } else if (raw > max) {
+            scrollOffsetX = max;
+            overX = (raw - max) * RESIST;
+            if (overX > MAX_OVER) overX = MAX_OVER;
+        } else {
+            scrollOffsetX = raw;
+            overX = 0;
+        }
+        applyScroll();
+    }, { passive: true });
+
+    stage.addEventListener('touchend', e => {
+        if (body.classList.contains('is-detail') || isMobile()) return;
+
+        /* 탭(클릭)이었으면 해당 스트립에 click 이벤트 위임 */
+        if (!touchMoved) {
+            overX = 0;
+            /* touchend에서 직접 클릭 처리 */
+            const touch = e.changedTouches[0];
+            const el = document.elementFromPoint(touch.clientX, touch.clientY);
+            const strip = el && el.closest('.project-strip');
+            if (strip && body.classList.contains('is-started')) {
+                const idx = parseInt(strip.dataset.index);
+                if (strip.classList.contains('expanded')) {
+                    const r = strip.getBoundingClientRect();
+                    rotate(strip, touch.clientX - r.left < r.width / 2 ? -1 : 1);
+                } else {
+                    showProject(idx);
+                }
+            }
+            return;
+        }
+
+        /* 관성 + 바운스 */
+        (function loop() {
+            let active = false;
+            const max  = maxOffset();
+            if (Math.abs(velX) > 0.25) {
+                scrollOffsetX = Math.max(0, Math.min(max, scrollOffsetX + velX));
+                velX *= FRICTION; active = true;
+            } else { velX = 0; }
+            if (scrollOffsetX < 0) {
+                overX += -scrollOffsetX * RESIST; scrollOffsetX = 0; velX *= -0.25; active = true;
+            } else if (scrollOffsetX > max) {
+                overX += (scrollOffsetX - max) * RESIST; scrollOffsetX = max; velX *= -0.25; active = true;
+            }
+            if (Math.abs(overX) > 0.15) {
+                overX -= overX * SPRING_STIFF * 5; overX *= SPRING_DAMP; active = true;
+            } else { overX = 0; }
+            applyScroll();
+            if (active) rafId = requestAnimationFrame(loop);
+        })();
+    }, { passive: true });
+
     /* ── 스트립 클릭 (드래그와 구분) ── */
     strips.forEach(s => s.addEventListener('click', function(e) {
-        if (!body.classList.contains('is-started') || isMobile() || isTablet()) return;
+        if (!body.classList.contains('is-started') || isMobile()) return;
         if (dragMoved) return; /* 드래그였으면 클릭 무시 */
         const idx = parseInt(this.dataset.index);
         if (this.classList.contains('expanded')) {
