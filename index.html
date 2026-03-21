@@ -268,7 +268,7 @@
                         s.style.left = '10vw';
                         s.style.width = '12vw';
                         s.style.height = 'var(--strip-height)';
-                        s.style.transform = 'translate(-50%, -50%) rotateY(15deg) scale(1.077)';
+                        s.style.transform = 'translate(-50%, -50%) rotateY(15deg) scale(1.023)';
                         s.style.opacity = '0.25';
                         s.style.zIndex = '1500';
                         s.style.pointerEvents = 'auto';
@@ -278,7 +278,7 @@
                         s.style.left = '90vw';
                         s.style.width = '12vw';
                         s.style.height = 'var(--strip-height)';
-                        s.style.transform = 'translate(-50%, -50%) rotateY(-15deg) scale(1.077)';
+                        s.style.transform = 'translate(-50%, -50%) rotateY(-15deg) scale(1.023)';
                         s.style.opacity = '0.25';
                         s.style.zIndex = '1500';
                         s.style.pointerEvents = 'auto';
@@ -305,11 +305,12 @@
         }
 
         function showProject(index) {
+            const isEntering = !body.classList.contains('is-detail');
             currentDetailIndex = index;
             const currentStrip = strips[index];
             if (expandedTitleText) expandedTitleText.innerText = currentStrip.dataset.title;
             
-            if (!body.classList.contains('is-detail')) {
+            if (isEntering) {
                 body.classList.add('is-detail');
             }
             
@@ -322,7 +323,34 @@
                      onclick="event.stopPropagation(); jumpToPhoto(${index}, ${pIdx})"></div>
             `).join('');
 
-            updateStripPositions();
+            if (isEntering) {
+                // Main strip expands, other 6 strips fade out IN PLACE
+                strips.forEach((s, i) => {
+                    if (i === index) {
+                        s.style.left = '50vw';
+                        s.style.width = 'calc(var(--strip-height) * 16 / 9)';
+                        s.style.height = 'var(--strip-height)';
+                        s.style.transform = 'translate(-50%, -50%)';
+                        s.style.opacity = '1';
+                        s.style.zIndex = '3000';
+                        s.style.pointerEvents = 'auto';
+                        s.classList.add('expanded');
+                        s.classList.remove('peek');
+                    } else {
+                        s.style.transition = 'opacity 0.6s var(--ease)';
+                        s.style.opacity = '0';
+                        s.style.pointerEvents = 'none';
+                    }
+                });
+
+                // Wait 600ms for them to fade out, THEN update to detail positions so peek thumbnails fade in
+                setTimeout(() => {
+                    strips.forEach(s => s.style.transition = '');
+                    updateStripPositions();
+                }, 600);
+            } else {
+                updateStripPositions();
+            }
         }
 
         function jumpToPhoto(projectIdx, photoIdx) {
@@ -362,17 +390,16 @@
                 if (i !== oldIndex) s.style.opacity = '0';
             });
 
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    strips.forEach((s, i) => {
-                        if (i !== oldIndex) {
-                            s.style.transition = 'opacity 0.6s var(--ease)';
-                            s.style.opacity = '0.4';
-                            setTimeout(() => s.style.transition = '', 600);
-                        }
-                    });
+            // Delay fade-in of other strips until main strip fully returns (approx 1.1s)
+            setTimeout(() => {
+                strips.forEach((s, i) => {
+                    if (i !== oldIndex) {
+                        s.style.transition = 'opacity 0.8s var(--ease)';
+                        s.style.opacity = '0.4';
+                        setTimeout(() => s.style.transition = '', 800);
+                    }
                 });
-            });
+            }, 1100);
 
             pagerContainer.innerHTML = '';
             document.querySelectorAll('.photo').forEach(p => p.classList.toggle('active', p.parentElement.children[0] === p));
