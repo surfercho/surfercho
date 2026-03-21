@@ -7,10 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400&display=swap" rel="stylesheet">
     <style>
 
-/* ┌─────────────────────────────────────────────────────────┐
-   │  SHARED  —  공통 변수 · 리셋 · 인트로 · NAV · 컨택트   │
-   └─────────────────────────────────────────────────────────┘ */
-
 :root {
     --bg:           linear-gradient(180deg, hsl(0,0%,20%) 0%, hsl(0,0%,10%) 100%);
     --text:         #fff;
@@ -19,13 +15,6 @@
     --radius:       12px;
     --strip-height: 65vh;
     --nav-h-mob:    72px;
-}
-
-/* 태블릿에서 strip 높이 축소 — 확장 시 16/9 비율 너비가 vw 초과 방지 */
-@media (min-width: 769px) and (max-width: 1024px) {
-    :root {
-        --strip-height: 46vh;
-    }
 }
 
 * {
@@ -37,7 +26,6 @@
 
 body { background:var(--bg); color:var(--text); overflow:hidden; width:100vw; height:100vh; }
 
-/* Intro */
 #intro-screen {
     position:fixed; inset:0;
     background:rgba(10,10,10,0.6);
@@ -50,8 +38,7 @@ body { background:var(--bg); color:var(--text); overflow:hidden; width:100vw; he
     font-size:clamp(36px,10vw,80px); font-weight:200;
     letter-spacing:clamp(8px,4vw,25px); text-transform:uppercase;
     animation:introReveal 2.5s var(--ease) forwards;
-    pointer-events:none;
-    text-align:center;
+    pointer-events:none; text-align:center;
     text-indent:clamp(8px,4vw,25px);
 }
 .click-to-enter {
@@ -60,12 +47,11 @@ body { background:var(--bg); color:var(--text); overflow:hidden; width:100vw; he
 }
 @keyframes introReveal {
     0%   { opacity:0; transform:translateY(20px) scale(0.95); filter:blur(10px); }
-    100% { opacity:1; transform:translateY(0)    scale(1);    filter:blur(0);    }
+    100% { opacity:1; transform:translateY(0) scale(1); filter:blur(0); }
 }
 @keyframes pulse { 0%,100%{opacity:0.2;} 50%{opacity:0.5;} }
 body.is-started #intro-screen { opacity:0; visibility:hidden; }
 
-/* Nav */
 nav {
     position:fixed; top:0; width:100%;
     display:flex; justify-content:space-between; align-items:center;
@@ -76,7 +62,6 @@ nav {
 body:not(.is-started) nav { opacity:0; }
 body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
 
-/* Contact overlay */
 #contact-overlay {
     position:fixed; inset:0;
     background:rgba(10,10,10,0.85);
@@ -100,7 +85,6 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
 }
 .contact-link:hover::after { width:100%; }
 
-/* Toast */
 #toast {
     position:fixed; bottom:50px; left:50%; transform:translateX(-50%);
     background:#fff; color:#000; padding:12px 24px;
@@ -108,13 +92,8 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
     opacity:0; transition:opacity 0.4s var(--ease); z-index:8000; pointer-events:none;
 }
 
-
-/* ┌─────────────────────────────────────────────────────────┐
-   │  PC ONLY  (min-width: 1025px)                           │
-   └─────────────────────────────────────────────────────────┘ */
-
+/* ── PC ── */
 @media (min-width: 1025px) {
-
     nav { padding:40px 60px; }
 
     .close-project {
@@ -143,9 +122,14 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
         position:relative; display:flex; width:100vw; height:100vh;
         justify-content:center; align-items:center; perspective:2000px; overflow:hidden;
         transition:padding-top var(--transition), filter 1.5s var(--ease), background-color var(--transition);
+        user-select:none; /* 드래그 중 텍스트 선택 방지 */
     }
     body:not(.is-started) #stage { filter:blur(20px) scale(1.1); }
-    body.is-detail         #stage { background-color:rgba(0,0,0,0.7); }
+    body.is-detail #stage { background-color:rgba(0,0,0,0.7); }
+
+    /* 드래그 중 커서 오버라이드 */
+    #stage.is-dragging,
+    #stage.is-dragging * { cursor:grabbing !important; }
 
     .project-strip {
         position:absolute; top:50%; transform:translate(-50%,-50%);
@@ -212,183 +196,140 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
     body.is-detail #fixed-expanded-title { opacity:1; }
     .expanded-title { font-size:16px; font-weight:400; letter-spacing:10px; color:#fff; text-transform:uppercase; line-height:1; }
 
-    /* 모바일 전용 요소 완전 숨김 */
-    #mobile-layout { display:none !important; }
-
-    /* PC에서 태블릿용 래퍼는 완전 투명 패스스루 */
-    #tab-stage-scroll { position:fixed; inset:0; width:100vw; height:100vh; overflow:hidden; }
-    #tab-nav-border   { display:none !important; }
+    #mobile-layout  { display:none !important; }
+    #tablet-layout  { display:none !important; }
 }
 
-
-/* ┌─────────────────────────────────────────────────────────┐
-   │  TABLET  (769px ~ 1024px) — PC 레이아웃 기반 보정      │
-   └─────────────────────────────────────────────────────────┘ */
-
+/* ── TABLET ── */
 @media (min-width: 769px) and (max-width: 1024px) {
-
-    nav { padding:30px 40px; }
+    nav { padding:28px 36px; }
 
     .close-project {
-        position:fixed; top:30px; left:40px; z-index:6000; display:none;
-        font-size:12px; letter-spacing:2px; mix-blend-mode:difference; cursor:pointer !important;
+        position:fixed; top:28px; left:36px; z-index:6000; display:none;
+        font-size:12px; letter-spacing:2px; cursor:pointer !important;
     }
     body.is-detail .close-project { display:block; }
     body.is-detail .logo { opacity:0; pointer-events:none; }
+    body.is-detail nav { pointer-events:none; }
+    body.is-detail .contact-trigger { pointer-events:auto; }
 
-    #detail-pagers {
-        position:fixed; top:90px; left:50%; transform:translateX(-50%);
-        display:flex; gap:6px; z-index:3500; opacity:0; visibility:hidden;
-        transition:all 0.8s var(--ease); padding:6px; border-radius:8px;
-        max-width:90vw; flex-wrap:wrap; justify-content:center;
-    }
-    body.is-detail #detail-pagers { opacity:1; visibility:visible; }
-    .pager-item {
-        width:52px; height:36px; border-radius:4px; background-size:cover; background-position:center;
-        opacity:0.3; transition:all 0.4s var(--ease); cursor:pointer !important;
-        border:1px solid rgba(255,255,255,0.2); background-color:#333;
-    }
-    .pager-item:hover { opacity:0.7; }
-    .pager-item.active { opacity:1; border-color:#fff; transform:scale(1.1); }
+    #stage                { display:none !important; }
+    #detail-pagers        { display:none !important; }
+    #fixed-expanded-title { display:none !important; }
+    #mobile-layout        { display:none !important; }
 
-    /* ── 태블릿 가로 시: 스크롤 래퍼 ── */
-    #tab-stage-scroll {
-        position: fixed;
-        inset: 0;
-        width: 100vw; height: 100vh;
-        overflow-x: auto; overflow-y: hidden;
-        scrollbar-width: none; -ms-overflow-style: none;
-        -webkit-overflow-scrolling: touch;
-    }
-    #tab-stage-scroll::-webkit-scrollbar { display: none; }
+    #tablet-layout { display:block; position:fixed; inset:0; }
 
-    /* is-detail 진입 시 스크롤 잠금 */
-    body.is-detail #tab-stage-scroll { overflow: hidden; }
+    #tab-gallery-wrap {
+        position:absolute; inset:0; overflow:hidden;
+        transition:opacity 0.5s var(--ease), visibility 0.5s;
+    }
+    body.is-detail #tab-gallery-wrap { opacity:0; visibility:hidden; pointer-events:none; }
+    body:not(.is-started) #tab-gallery-wrap { filter:blur(16px); }
 
-    #stage {
-        /* 스크롤 래퍼 안에서 실제 너비를 strip 전체 합으로 늘림 — JS가 주입 */
-        position:relative; display:flex; height:100vh;
-        justify-content:flex-start; align-items:center; perspective:1400px;
-        transition:filter 1.5s var(--ease), background-color var(--transition);
-        /* overflow 제거 — 래퍼가 담당 */
-    }
-    body:not(.is-started) #stage { filter:blur(20px) scale(1.1); }
-    body.is-detail         #stage { background-color:rgba(0,0,0,0.7); }
-
-    .project-strip {
-        position:absolute; top:50%; transform:translate(-50%,-50%);
-        border-radius:var(--radius); z-index:10;
-        display:flex; align-items:center; justify-content:center;
-        opacity:0.4; background-color:transparent;
-        transition:width var(--transition), height var(--transition),
-                   transform var(--transition), left var(--transition), opacity 0.4s ease, z-index 0s;
-        will-change:transform, width, height, left; cursor:pointer !important; overflow:hidden;
-    }
-    body:not(.is-detail) .project-strip:not(.expanded):not(.peek):hover {
-        opacity:1 !important;
-        transition:opacity 0.25s ease, width var(--transition), height var(--transition),
-                   transform var(--transition), left var(--transition), z-index 0s;
-    }
-    body:not(.is-detail) .project-strip:not(.expanded):not(.peek):hover .strip-img-wrapper
-        { transform:scale(1.07); transition:transform 0.5s var(--ease); }
-    body:not(.is-detail) .project-strip:not(.expanded):not(.peek):hover .thumb-title
-        { opacity:1; transition:opacity 0.25s ease; }
-    .project-strip.peek:hover {
-        opacity:0.6 !important;
-        transition:width var(--transition), height var(--transition),
-                   transform var(--transition), left var(--transition), opacity 0.3s ease, z-index 0s !important;
+    #tab-track {
+        display:flex; flex-direction:row; align-items:center; height:100%;
+        padding:0 calc(50vw - 140px); gap:20px; will-change:transform;
     }
 
-    .strip-img-wrapper {
-        width:100%; height:100%; position:absolute; border-radius:var(--radius);
-        overflow:hidden; z-index:1; background-color:transparent;
-        transition:transform 0.5s var(--ease); background-size:cover; background-position:center;
+    .tab-card {
+        flex-shrink:0; width:280px; height:62vh; border-radius:var(--radius);
+        overflow:hidden; position:relative; opacity:0.45; cursor:pointer !important;
+        transition:opacity 0.3s ease, transform 0.3s ease;
     }
-    .project-strip.expanded .strip-img-wrapper { background-color:#000; }
-
-    .detail-photos { position:absolute; width:100%; height:100%; opacity:0; transition:opacity 0.6s var(--ease); z-index:2; }
-    .expanded .detail-photos { opacity:1; }
-
-    .photo {
-        position:absolute; width:100%; height:100%; opacity:0;
-        transition:opacity 0.8s var(--ease);
-        background-size:cover; background-repeat:no-repeat; background-position:center;
-    }
-    .photo.active { opacity:1; }
-
-    .photo-nav {
-        position:absolute; top:50%; transform:translateY(-50%);
-        background:none; color:rgba(255,255,255,0.3); font-size:40px; font-weight:200;
-        z-index:10; opacity:0; visibility:hidden; transition:opacity 0.3s var(--ease);
-        cursor:default !important; user-select:none; outline:none;
-    }
-    .project-strip.expanded .photo-nav { opacity:1; visibility:visible; }
-    .photo-nav-prev { left:20px; }
-    .photo-nav-next { right:20px; }
-
-    .thumb-title {
-        position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) rotate(-90deg);
-        font-size:10px; font-weight:300; letter-spacing:4px; opacity:0.6; z-index:10;
-        text-transform:uppercase; white-space:nowrap; transition:opacity 0.4s;
-    }
-    .project-strip.expanded .thumb-title { opacity:0; }
-
-    #fixed-expanded-title {
-        position:fixed; top:calc(100vh - 130px); left:50%; transform:translateX(-50%);
-        z-index:4000; opacity:0; transition:opacity 0.8s var(--ease) 0.3s;
-    }
-    body.is-detail #fixed-expanded-title { opacity:1; }
-    .expanded-title { font-size:14px; font-weight:400; letter-spacing:8px; color:#fff; text-transform:uppercase; line-height:1; }
-
-    /* ── 태블릿 세로(portrait) — is-detail 진입 시 nav 경계 ── */
-    @media (orientation: portrait) {
-        /* mob-detail 과 동일한 frosted 경계를 #stage 위에 얹음 */
-        #tab-nav-border {
-            display: block;
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            /* nav padding 30px + 글자 높이 약 20px + 여유 */
-            height: 80px;
-            background: linear-gradient(
-                to bottom,
-                hsl(0,0%,18%) 0%,
-                hsl(0,0%,18%) 70%,
-                transparent 100%
-            );
-            pointer-events: none;
-            z-index: 3500;
-            opacity: 0;
-            transition: opacity 0.4s var(--ease);
-        }
-        body.is-detail #tab-nav-border { opacity: 1; }
-    }
-    @media (orientation: landscape) {
-        #tab-nav-border { display: none; }
+    .tab-card:active { opacity:0.9; transform:scale(0.97); }
+    .tab-card-bg { position:absolute; inset:0; background-size:cover; background-position:center; }
+    .tab-card-overlay { position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 50%); }
+    .tab-card-title {
+        position:absolute; bottom:16px; left:18px;
+        font-size:11px; font-weight:300; letter-spacing:5px;
+        text-transform:uppercase; color:#fff; opacity:0.85;
     }
 
-    /* 모바일 전용 요소 완전 숨김 */
-    #mobile-layout { display:none !important; }
+    #tab-nav-border {
+        position:fixed; top:0; left:0; right:0; height:80px;
+        background:linear-gradient(to bottom, hsl(0,0%,18%) 0%, hsl(0,0%,18%) 65%, transparent 100%);
+        pointer-events:none; z-index:3500; opacity:0; transition:opacity 0.4s var(--ease);
+    }
+    body.is-detail #tab-nav-border { opacity:1; }
+
+    #tab-detail {
+        position:absolute; inset:0; background:var(--bg); z-index:2000;
+        display:flex; flex-direction:column; align-items:center; justify-content:center;
+        gap:24px; opacity:0; visibility:hidden;
+        transition:opacity 0.7s var(--ease), visibility 0.7s;
+        pointer-events:none; overflow:hidden;
+    }
+    body.is-detail #tab-detail { opacity:1; visibility:visible; pointer-events:auto; }
+
+    .tab-peek-card {
+        width:calc(100% - 120px); aspect-ratio:16/9;
+        border-radius:var(--radius); overflow:hidden; flex-shrink:0;
+        position:relative; opacity:0.22; cursor:pointer !important;
+        background-size:cover; background-position:center;
+        transition:opacity 0.6s var(--ease), transform 0.6s var(--ease);
+    }
+    .tab-peek-card:active { opacity:0.45; }
+    #tab-peek-top    { transform:scale(0.88); transform-origin:bottom center; }
+    #tab-peek-bottom { transform:scale(0.88); transform-origin:top center; }
+
+    .tab-peek-label {
+        position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+        font-size:9px; font-weight:300; letter-spacing:4px;
+        text-transform:uppercase; color:rgba(255,255,255,0.55);
+        background:rgba(0,0,0,0.5); pointer-events:none;
+    }
+
+    #tab-main-block { display:flex; flex-direction:column; align-items:center; gap:16px; width:100%; flex-shrink:0; }
+
+    #tab-viewer {
+        position:relative; width:calc(100% - 80px); aspect-ratio:16/9;
+        border-radius:var(--radius); overflow:hidden; flex-shrink:0;
+        z-index:2; box-shadow:0 20px 60px rgba(0,0,0,0.6);
+    }
+
+    .tab-slide {
+        position:absolute; inset:0; background-size:cover; background-position:center;
+        opacity:0; transition:opacity 0.65s var(--ease); pointer-events:none;
+    }
+    .tab-slide.active { opacity:1; pointer-events:auto; }
+
+    .tab-tap-zone { position:absolute; top:0; bottom:0; width:50%; z-index:5; cursor:pointer !important; }
+    #tab-tap-prev { left:0; }
+    #tab-tap-next { right:0; }
+
+    #tab-info-bar { width:calc(100% - 80px); display:flex; flex-direction:column; align-items:center; gap:10px; flex-shrink:0; }
+    #tab-detail-title {
+        font-size:12px; font-weight:300; letter-spacing:8px;
+        text-transform:uppercase; color:rgba(255,255,255,0.55); text-align:center;
+    }
+
+    #tab-thumbs {
+        display:flex; gap:8px; flex-wrap:nowrap; width:100%; overflow-x:auto; overflow-y:visible;
+        overscroll-behavior-x:contain; scrollbar-width:none; -ms-overflow-style:none;
+        padding:2px 2px 4px; box-sizing:border-box;
+    }
+    #tab-thumbs::-webkit-scrollbar { display:none; }
+
+    .tab-thumb {
+        width:52px; height:36px; border-radius:4px; flex-shrink:0;
+        background-size:cover; background-position:center; opacity:0.3;
+        border:1px solid rgba(255,255,255,0.1);
+        transition:opacity 0.3s var(--ease), border-color 0.3s, transform 0.3s var(--ease);
+        cursor:pointer !important;
+    }
+    .tab-thumb.active { opacity:1; border-color:#fff; transform:scale(1.1); }
 }
 
-
-/* ┌─────────────────────────────────────────────────────────┐
-   │  MOBILE ONLY  (max-width: 768px)                        │
-   └─────────────────────────────────────────────────────────┘ */
-
+/* ── MOBILE ── */
 @media (max-width: 768px) {
-
     nav { padding:20px 24px; height:var(--nav-h-mob); }
     .logo { font-size:12px; letter-spacing:3px; }
-
-    .contact-trigger {
-        font-size:11px;
-        letter-spacing:2px;
-    }
+    .contact-trigger { font-size:11px; letter-spacing:2px; }
 
     .close-project {
         position:fixed; top:20px; left:24px; z-index:6000; display:none;
-        font-size:11px; letter-spacing:2px;
-        line-height:1; padding-bottom:1px;
+        font-size:11px; letter-spacing:2px; line-height:1; padding-bottom:1px;
         mix-blend-mode:difference; cursor:pointer !important;
     }
     body.is-detail .close-project { display:block; }
@@ -396,21 +337,15 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
     body.is-detail nav { pointer-events:none; }
     body.is-detail .contact-trigger { pointer-events:auto; }
 
-    /* PC 전용 요소 완전 숨김 */
     #stage                { display:none !important; }
     #fixed-expanded-title { display:none !important; }
     #detail-pagers        { display:none !important; }
+    #tablet-layout        { display:none !important; }
 
-    /* ── 모바일 전체 래퍼 ── */
-    #mobile-layout {
-        display:block;
-        width:100vw; height:100vh;
-        position:relative;
-    }
+    #mobile-layout { display:block; width:100vw; height:100vh; position:relative; }
 
     #mob-grid-wrap {
-        position:absolute; inset:0;
-        overflow-y:auto; overflow-x:hidden;
+        position:absolute; inset:0; overflow-y:auto; overflow-x:hidden;
         scrollbar-width:none; -ms-overflow-style:none;
         transition:opacity 0.5s var(--ease), visibility 0.5s;
     }
@@ -419,51 +354,27 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
     body:not(.is-started) #mob-grid-wrap { filter:blur(16px); }
 
     #mob-nav-border {
-        position: fixed;
-        top: 0; left: 0; right: 0;
-        height: var(--nav-h-mob);
-        background: linear-gradient(
-            to bottom,
-            hsl(0,0%,18%) 0%,
-            hsl(0,0%,18%) 75%,
-            transparent 100%
-        );
-        pointer-events: none;
-        z-index: 3500;
-        transition: opacity 0.4s var(--ease);
+        position:fixed; top:0; left:0; right:0; height:var(--nav-h-mob);
+        background:linear-gradient(to bottom, hsl(0,0%,18%) 0%, hsl(0,0%,18%) 75%, transparent 100%);
+        pointer-events:none; z-index:3500; transition:opacity 0.4s var(--ease);
     }
     body.is-detail #mob-nav-border { opacity:0; }
 
-    #mob-grid {
-        display:flex;
-        flex-direction:column;
-        gap:14px;
-        padding: var(--nav-h-mob) 20px 48px;
-    }
+    #mob-grid { display:flex; flex-direction:column; gap:14px; padding:var(--nav-h-mob) 20px 48px; }
 
     .mob-card {
-        position:relative;
-        width:100%;
-        aspect-ratio:16/10;
-        border-radius:var(--radius);
-        overflow:hidden;
-        cursor:pointer !important;
-        opacity:0.72;
+        position:relative; width:100%; aspect-ratio:16/10;
+        border-radius:var(--radius); overflow:hidden;
+        cursor:pointer !important; opacity:0.72;
         transition:opacity 0.3s var(--ease), transform 0.3s var(--ease);
     }
     .mob-card:active { opacity:1; transform:scale(0.985); }
-
     .mob-card-bg {
-        position:absolute; inset:0;
-        background-size:cover; background-position:center;
+        position:absolute; inset:0; background-size:cover; background-position:center;
         transition:transform 0.55s var(--ease);
     }
     .mob-card:active .mob-card-bg { transform:scale(1.04); }
-
-    .mob-card-overlay {
-        position:absolute; inset:0;
-        background:linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 55%);
-    }
+    .mob-card-overlay { position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 55%); }
     .mob-card-title {
         position:absolute; bottom:16px; left:18px;
         font-size:11px; font-weight:300; letter-spacing:5px;
@@ -471,150 +382,88 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
     }
 
     #mob-detail {
-        position: absolute; inset: 0;
-        background: var(--bg);
-        z-index: 2000;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 20px;
-        opacity: 0; visibility: hidden;
-        transition: opacity 0.7s var(--ease), visibility 0.7s;
-        pointer-events: none;
-        overflow: hidden;
+        position:absolute; inset:0; background:var(--bg); z-index:2000;
+        display:flex; flex-direction:column; align-items:center; justify-content:center;
+        gap:20px; opacity:0; visibility:hidden;
+        transition:opacity 0.7s var(--ease), visibility 0.7s;
+        pointer-events:none; overflow:hidden;
     }
     body.is-detail #mob-detail { opacity:1; visibility:visible; pointer-events:auto; }
 
     .mob-peek-card {
-        width: calc(100% - 80px);
-        aspect-ratio: 16/9;
-        border-radius: var(--radius);
-        overflow: hidden;
-        flex-shrink: 0;
-        position: relative;
-        opacity: 0.25;
-        cursor: pointer !important;
-        background-size: cover; background-position: center;
-        transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
+        width:calc(100% - 80px); aspect-ratio:16/9;
+        border-radius:var(--radius); overflow:hidden; flex-shrink:0;
+        position:relative; opacity:0.25; cursor:pointer !important;
+        background-size:cover; background-position:center;
+        transition:opacity 0.6s var(--ease), transform 0.6s var(--ease);
     }
     .mob-peek-card:active { opacity:0.5; }
-
-    #mob-peek-top    { transform: scale(0.88); transform-origin: bottom center; }
-    #mob-peek-bottom { transform: scale(0.88); transform-origin: top center;    }
+    #mob-peek-top    { transform:scale(0.88); transform-origin:bottom center; }
+    #mob-peek-bottom { transform:scale(0.88); transform-origin:top center; }
 
     .mob-peek-label {
-        position: absolute; inset: 0;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 9px; font-weight: 300; letter-spacing: 4px;
-        text-transform: uppercase; color: rgba(255,255,255,0.55);
-        background: rgba(0,0,0,0.5);
-        pointer-events: none;
+        position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+        font-size:9px; font-weight:300; letter-spacing:4px;
+        text-transform:uppercase; color:rgba(255,255,255,0.55);
+        background:rgba(0,0,0,0.5); pointer-events:none;
     }
 
-    #mob-main-block {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 14px;
-        width: 100%;
-        flex-shrink: 0;
-    }
+    #mob-main-block { display:flex; flex-direction:column; align-items:center; gap:14px; width:100%; flex-shrink:0; }
 
     #mob-viewer {
-        position: relative;
-        width: calc(100% - 48px);
-        aspect-ratio: 16/9;
-        border-radius: var(--radius);
-        overflow: hidden;
-        flex-shrink: 0;
-        z-index: 2;
-        box-shadow: 0 16px 48px rgba(0,0,0,0.55);
+        position:relative; width:calc(100% - 48px); aspect-ratio:16/9;
+        border-radius:var(--radius); overflow:hidden; flex-shrink:0;
+        z-index:2; box-shadow:0 16px 48px rgba(0,0,0,0.55);
     }
 
     .mob-slide {
-        position: absolute; inset: 0;
-        background-size: cover; background-position: center;
-        opacity: 0; transition: opacity 0.65s var(--ease); pointer-events: none;
+        position:absolute; inset:0; background-size:cover; background-position:center;
+        opacity:0; transition:opacity 0.65s var(--ease); pointer-events:none;
     }
     .mob-slide.active { opacity:1; pointer-events:auto; }
 
-    .mob-tap-zone {
-        position: absolute; top:0; bottom:0; width:50%;
-        z-index: 5; cursor: pointer !important;
-    }
+    .mob-tap-zone { position:absolute; top:0; bottom:0; width:50%; z-index:5; cursor:pointer !important; }
     #mob-tap-prev { left:0; }
     #mob-tap-next { right:0; }
 
     .mob-tap-hint {
-        position: absolute; top:50%; transform:translateY(-50%);
-        font-size: 28px; font-weight:200; color:rgba(255,255,255,0.2);
+        position:absolute; top:50%; transform:translateY(-50%);
+        font-size:28px; font-weight:200; color:rgba(255,255,255,0.2);
         pointer-events:none; z-index:4;
-        animation: hintFade 3s var(--ease) 0.8s forwards;
+        animation:hintFade 3s var(--ease) 0.8s forwards;
     }
     #mob-hint-prev { left:12px; }
     #mob-hint-next { right:12px; }
     @keyframes hintFade { 0%,70%{opacity:1;} 100%{opacity:0;} }
 
-    #mob-info-bar {
-        width: calc(100% - 48px);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-        flex-shrink: 0;
-    }
+    #mob-info-bar { width:calc(100% - 48px); display:flex; flex-direction:column; align-items:center; gap:10px; flex-shrink:0; }
     #mob-detail-title {
-        font-size: 11px; font-weight:300; letter-spacing:8px;
-        text-transform:uppercase; color: rgba(255,255,255,0.55);
-        text-align: center;
+        font-size:11px; font-weight:300; letter-spacing:8px;
+        text-transform:uppercase; color:rgba(255,255,255,0.55); text-align:center;
     }
 
     #mob-thumbs {
-        display: flex;
-        gap: 6px;
-        flex-wrap: nowrap;
-        width: 100%;
-        max-width: 100%;
-        overflow-x: auto;
-        overflow-y: visible;
-        overscroll-behavior-x: contain;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-        padding: 2px 2px 4px;
-        box-sizing: border-box;
+        display:flex; gap:6px; flex-wrap:nowrap; width:100%; max-width:100%;
+        overflow-x:auto; overflow-y:visible; overscroll-behavior-x:contain;
+        scrollbar-width:none; -ms-overflow-style:none; padding:2px 2px 4px; box-sizing:border-box;
     }
     #mob-thumbs::-webkit-scrollbar { display:none; }
 
     .mob-thumb {
-        width: 44px;
-        height: 30px;
-        border-radius: 4px;
-        flex-shrink: 0;
-        background-size: cover; background-position: center;
-        opacity: 0.3;
-        border: 1px solid rgba(255,255,255,0.1);
-        transition: opacity 0.3s var(--ease), border-color 0.3s, transform 0.3s var(--ease);
-        cursor: pointer !important;
+        width:44px; height:30px; border-radius:4px; flex-shrink:0;
+        background-size:cover; background-position:center; opacity:0.3;
+        border:1px solid rgba(255,255,255,0.1);
+        transition:opacity 0.3s var(--ease), border-color 0.3s, transform 0.3s var(--ease);
+        cursor:pointer !important;
     }
-    .mob-thumb:active    { opacity: 0.7; }
-    .mob-thumb.active    {
-        opacity: 1;
-        border-color: #fff;
-        transform: scale(1.1);
-    }
+    .mob-thumb.active { opacity:1; border-color:#fff; transform:scale(1.1); }
 
-    /* Contact */
     .contact-link { font-size:15px; letter-spacing:5px; }
 }
 
     </style>
 </head>
 <body onclick="handleIntroClick()">
-
-<!-- ═══════════════════════════════════════
-     SHARED HTML
-═══════════════════════════════════════ -->
 
 <div id="intro-screen">
     <div class="intro-logo">Surfercho</div>
@@ -639,39 +488,43 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
 
 <div id="toast">EMAIL COPIED</div>
 
-
-<!-- ═══════════════════════════════════════
-     PC ONLY HTML
-═══════════════════════════════════════ -->
-
+<!-- PC -->
 <div id="detail-pagers"></div>
 <div id="fixed-expanded-title"><div class="expanded-title"></div></div>
-<!-- 태블릿 세로 portrait 모드 — is-detail 시 nav 경계 -->
-<div id="tab-nav-border"></div>
-<!-- 태블릿 가로 스크롤 래퍼 -->
-<div id="tab-stage-scroll">
-<div id="stage"></div><!-- strips injected by JS -->
+<div id="stage"></div>
+
+<!-- TABLET -->
+<div id="tablet-layout">
+    <div id="tab-nav-border"></div>
+    <div id="tab-gallery-wrap"><div id="tab-track"></div></div>
+    <div id="tab-detail">
+        <div class="tab-peek-card" id="tab-peek-top" onclick="event.stopPropagation(); tabSwitchProject(-1)">
+            <div class="tab-peek-label" id="tab-peek-top-label"></div>
+        </div>
+        <div id="tab-main-block">
+            <div id="tab-viewer">
+                <div class="tab-tap-zone" id="tab-tap-prev"></div>
+                <div class="tab-tap-zone" id="tab-tap-next"></div>
+            </div>
+            <div id="tab-info-bar">
+                <div id="tab-detail-title"></div>
+                <div id="tab-thumbs"></div>
+            </div>
+        </div>
+        <div class="tab-peek-card" id="tab-peek-bottom" onclick="event.stopPropagation(); tabSwitchProject(1)">
+            <div class="tab-peek-label" id="tab-peek-bottom-label"></div>
+        </div>
+    </div>
 </div>
 
-
-<!-- ═══════════════════════════════════════
-     MOBILE ONLY HTML
-═══════════════════════════════════════ -->
-
+<!-- MOBILE -->
 <div id="mobile-layout">
-
     <div id="mob-nav-border"></div>
-
-    <div id="mob-grid-wrap">
-        <div id="mob-grid"></div>
-    </div>
-
+    <div id="mob-grid-wrap"><div id="mob-grid"></div></div>
     <div id="mob-detail">
-
         <div class="mob-peek-card" id="mob-peek-top" onclick="event.stopPropagation(); mobSwitchProject(-1)">
             <div class="mob-peek-label" id="mob-peek-top-label"></div>
         </div>
-
         <div id="mob-main-block">
             <div id="mob-viewer">
                 <span class="mob-tap-hint" id="mob-hint-prev">&#10216;</span>
@@ -684,58 +537,40 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
                 <div id="mob-thumbs"></div>
             </div>
         </div>
-
         <div class="mob-peek-card" id="mob-peek-bottom" onclick="event.stopPropagation(); mobSwitchProject(1)">
             <div class="mob-peek-label" id="mob-peek-bottom-label"></div>
         </div>
-
     </div>
-
 </div>
 
 
 <script>
-/* ════════════════════════════════════════════════════════
-   SHARED DATA
-════════════════════════════════════════════════════════ */
-
+/* ═══════════════════════════════════════
+   DATA
+═══════════════════════════════════════ */
 const TITLES = ['LUGIA','B-Project','C-Project','D-Project','E-Project',
                 'F-Project','G-Project','H-Project','I-Project','J-Project'];
 const LABELS = ['a','b','c','d','e','f','g','h','i','j'];
-
 const IMAGES = TITLES.map((_, i) => {
     const lbl = LABELS[i];
     const len = (i === 0) ? 7 : 10;
-    if (i === 0) return Array.from({length:len}, (_,p) => `assets/project-${lbl}/${lbl} (${p+1}).png`);
-    return Array.from({length:len}, (_,p) => `https://picsum.photos/seed/proj-${i}-${p}/1600/900`);
+    if (i === 0) return Array.from({length:len},(_,p)=>`assets/project-${lbl}/${lbl} (${p+1}).png`);
+    return Array.from({length:len},(_,p)=>`https://picsum.photos/seed/proj-${i}-${p}/1600/900`);
 });
 
-const body = document.body;
-
-/* 태블릿 포함 모바일 여부 — 768px 이하만 모바일 레이아웃 */
+const body     = document.body;
 const isMobile = () => window.innerWidth <= 768;
-
-/* 태블릿 여부 (769~1024px) */
 const isTablet = () => window.innerWidth >= 769 && window.innerWidth <= 1024;
 
-
-/* ════════════════════════════════════════════════════════
-   SHARED — Intro
-════════════════════════════════════════════════════════ */
-
+/* ═══════════════════════════════════════
+   SHARED
+═══════════════════════════════════════ */
 function handleIntroClick() {
     if (!body.classList.contains('is-started')) body.classList.add('is-started');
 }
-
-
-/* ════════════════════════════════════════════════════════
-   SHARED — Contact / Toast
-════════════════════════════════════════════════════════ */
-
 function toggleContact() {
     document.getElementById('contact-overlay').classList.toggle('active');
 }
-
 function copyEmail(email) {
     navigator.clipboard.writeText(email).then(() => {
         const t = document.getElementById('toast');
@@ -743,453 +578,526 @@ function copyEmail(email) {
         setTimeout(() => { t.style.opacity = '0'; }, 2000);
     });
 }
-
-
-/* ════════════════════════════════════════════════════════
-   SHARED — shrinkProject  (← BACK 버튼 공용 진입점)
-════════════════════════════════════════════════════════ */
-
 function shrinkProject() {
-    isMobile() ? mobShrink() : pcShrink();
+    if (isMobile())      mobShrink();
+    else if (isTablet()) tabShrink();
+    else                 pcShrink();
 }
 
-
-/* ╔═══════════════════════════════════════════════════════╗
-   ║  PC / TABLET LOGIC                                    ║
-   ╚═══════════════════════════════════════════════════════╝ */
-
+/* ═══════════════════════════════════════
+   PC
+═══════════════════════════════════════ */
 (function pcInit() {
     const stage          = document.getElementById('stage');
     const pagerContainer = document.getElementById('detail-pagers');
     const expandedTitle  = document.querySelector('.expanded-title');
+    let currentIndex     = -1;
 
-    let currentIndex = -1;
+    /* ── 레이아웃 상수 ── */
+    const STRIP_W   = 195;  /* 스트립 너비 px */
+    const STRIP_GAP = 215;  /* center-to-center 간격 px */
 
-    /* ── Strip 생성 ── */
-    stage.innerHTML = TITLES.map((t, i) => `
-        <div class="project-strip strip-${i}" data-title="${t}" data-index="${i}">
+    /* ── 드래그 스크롤 상태 ──
+       scrollOffsetX: 양수면 전체 스트립이 왼쪽으로 이동 (오른쪽 카드 노출)
+       실제 left = (중앙정렬 기준 left) - scrollOffsetX */
+    let scrollOffsetX = 0;
+    let overX         = 0;   /* 끝 초과량 (바운스) */
+    let velX          = 0;   /* 마우스 속도 */
+    let dragActive    = false;
+    let dragStartX    = 0;
+    let dragStartOff  = 0;
+    let dragMoved     = false;
+    let lastMouseX    = 0;
+    let rafId         = null;
+
+    const FRICTION       = 0.88;
+    const SPRING_STIFF   = 0.16;
+    const SPRING_DAMP    = 0.68;
+    const MAX_OVER       = 110;
+    const RESIST         = 0.26;
+    const DRAG_THRESHOLD = 4;
+
+    /* 스크롤 가능 최대 오프셋:
+       전체 스트립 너비가 뷰포트보다 넓어지는 만큼만 허용 */
+    function maxOffset() {
+        const totalW = TITLES.length * STRIP_GAP;
+        const vp     = window.innerWidth;
+        return Math.max(0, (totalW - vp) / 2 + STRIP_W / 2 + 50);
+    }
+
+    /* i번째 스트립의 "기준 left" (offset=0, 중앙정렬) */
+    function baseLeft(i) {
+        const half = (TITLES.length - 1) / 2;
+        return window.innerWidth / 2 + (i - half) * STRIP_GAP;
+    }
+
+    /* 현재 scrollOffsetX+overX를 모든 기본 스트립에 즉시 반영 */
+    function applyScroll() {
+        if (body.classList.contains('is-detail')) return;
+        strips.forEach((s, i) => {
+            if (s.classList.contains('expanded') || s.classList.contains('peek')) return;
+            /* 트랜지션 없이 직접 */
+            const prevTrans = s.style.transition;
+            s.style.transition = 'none';
+            s.style.left = `${baseLeft(i) - (scrollOffsetX + overX)}px`;
+            /* 다음 프레임에 트랜지션 복원 (hover 효과 등 유지) */
+            requestAnimationFrame(() => { s.style.transition = prevTrans; });
+        });
+    }
+
+    /* ── stage HTML 생성 ── */
+    stage.innerHTML = TITLES.map((t,i) => `
+        <div class="project-strip strip-${i}" data-index="${i}">
             <div class="thumb-title">${t}</div>
             <div class="strip-img-wrapper" style="background-image:url('${IMAGES[i][0]}')">
-                <div class="photo-nav photo-nav-prev" onclick="event.stopPropagation(); pcNav(${i},-1)">&#10216;</div>
-                <div class="photo-nav photo-nav-next" onclick="event.stopPropagation(); pcNav(${i},1)">&#10217;</div>
+                <div class="photo-nav photo-nav-prev" onclick="event.stopPropagation();pcNav(${i},-1)">&#10216;</div>
+                <div class="photo-nav photo-nav-next" onclick="event.stopPropagation();pcNav(${i},1)">&#10217;</div>
                 <div class="detail-photos">
-                    ${IMAGES[i].map((url,p) => `
-                        <div class="photo ${p===0?'active':''}" style="background-image:url('${url}')"></div>
-                    `).join('')}
+                    ${IMAGES[i].map((url,p)=>`<div class="photo ${p===0?'active':''}" style="background-image:url('${url}')"></div>`).join('')}
                 </div>
             </div>
-        </div>
-    `).join('');
+        </div>`).join('');
 
     const strips = document.querySelectorAll('.project-strip');
     layoutDefault();
 
-    /* ── 클릭 이벤트 ── */
-    strips.forEach(strip => {
-        strip.addEventListener('click', function(e) {
-            if (!body.classList.contains('is-started') || isMobile()) return;
-            const idx = parseInt(this.dataset.index);
-            if (this.classList.contains('expanded')) {
-                const r = this.getBoundingClientRect();
-                rotate(this, e.clientX - r.left < r.width / 2 ? -1 : 1);
-                return;
-            }
-            showProject(idx);
-        });
+    /* ── mousedown: 드래그 시작 ── */
+    stage.addEventListener('mousedown', e => {
+        if (body.classList.contains('is-detail') || isMobile() || isTablet()) return;
+        dragActive   = true;
+        dragMoved    = false;
+        dragStartX   = e.clientX;
+        dragStartOff = scrollOffsetX;
+        lastMouseX   = e.clientX;
+        velX         = 0;
+        overX        = 0;
+        if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+        stage.classList.add('is-dragging');
+        e.preventDefault();
     });
 
-    /* ── 레이아웃: 갤러리 기본 ── */
-    function layoutDefault() {
-        const half = (TITLES.length - 1) / 2;
-        /* 태블릿은 간격·너비 축소 */
-        const gap = isTablet() ? 130 : 215;
-        const w   = isTablet() ? '115px' : '195px';
+    /* ── mousemove: window에 걸어야 stage 밖으로 나가도 추적 ── */
+    window.addEventListener('mousemove', e => {
+        if (!dragActive) return;
+        const dx = lastMouseX - e.clientX; /* 오른쪽 이동 → 음수, 왼쪽 이동 → 양수 */
+        lastMouseX = e.clientX;
+        velX = dx;
 
-        strips.forEach((s, i) => {
-            s.style.left = `calc(50vw + ${(i - half) * gap}px)`;
-            s.style.top = '50%'; s.style.width = w; s.style.height = 'var(--strip-height)';
-            s.style.transform = 'translate(-50%,-50%)'; s.style.opacity = '0.4';
-            s.style.zIndex = '10'; s.style.pointerEvents = 'auto';
-            s.classList.remove('expanded','peek');
-        });
+        if (Math.abs(e.clientX - dragStartX) > DRAG_THRESHOLD) dragMoved = true;
 
-        /* 태블릿: stage 실제 너비 = 전체 strip 영역 + 양쪽 여백 */
-        if (isTablet()) {
-            const totalW = TITLES.length * gap;
-            /* 50vw(첫 strip 중심) + half*gap 오른쪽 끝 + 반 strip + 여백 */
-            stage.style.width = `calc(100vw + ${totalW}px)`;
-            /* 스크롤을 중앙(첫 화면)부터 시작 */
-            const scroll = document.getElementById('tab-stage-scroll');
-            if (scroll) scroll.scrollLeft = totalW / 2 - scroll.clientWidth / 2 + gap / 2;
+        const totalDelta = dragStartX - e.clientX; /* 왼쪽으로 드래그하면 양수 */
+        const raw        = dragStartOff + totalDelta;
+        const max        = maxOffset();
+
+        if (raw < 0) {
+            scrollOffsetX = 0;
+            overX = raw * RESIST;
+            if (overX < -MAX_OVER) overX = -MAX_OVER;
+        } else if (raw > max) {
+            scrollOffsetX = max;
+            overX = (raw - max) * RESIST;
+            if (overX > MAX_OVER) overX = MAX_OVER;
         } else {
-            stage.style.width = '100vw';
+            scrollOffsetX = raw;
+            overX = 0;
         }
+
+        applyScroll();
+    });
+
+    /* ── mouseup: 관성 + 바운스 복원 ── */
+    window.addEventListener('mouseup', () => {
+        if (!dragActive) return;
+        dragActive = false;
+        stage.classList.remove('is-dragging');
+
+        if (!dragMoved) { overX = 0; return; } /* 클릭이었으면 바로 종료 */
+
+        /* 관성 + 스프링 루프 */
+        (function loop() {
+            let active = false;
+            const max  = maxOffset();
+
+            /* 관성 */
+            if (Math.abs(velX) > 0.25) {
+                scrollOffsetX = Math.max(0, Math.min(max, scrollOffsetX + velX));
+                velX *= FRICTION;
+                active = true;
+            } else { velX = 0; }
+
+            /* 경계 이탈 → 바운스 */
+            if (scrollOffsetX < 0) {
+                overX += -scrollOffsetX * RESIST;
+                scrollOffsetX = 0;
+                velX *= -0.25;
+                active = true;
+            } else if (scrollOffsetX > max) {
+                overX += (scrollOffsetX - max) * RESIST;
+                scrollOffsetX = max;
+                velX *= -0.25;
+                active = true;
+            }
+
+            /* 스프링 복원 */
+            if (Math.abs(overX) > 0.15) {
+                overX -= overX * SPRING_STIFF * 5;
+                overX *= SPRING_DAMP;
+                active = true;
+            } else { overX = 0; }
+
+            applyScroll();
+            if (active) rafId = requestAnimationFrame(loop);
+        })();
+    });
+
+    /* 창 밖 mouseup 처리 */
+    window.addEventListener('mouseleave', () => {
+        if (dragActive) {
+            dragActive = false;
+            stage.classList.remove('is-dragging');
+        }
+    });
+
+    /* ── 스트립 클릭 (드래그와 구분) ── */
+    strips.forEach(s => s.addEventListener('click', function(e) {
+        if (!body.classList.contains('is-started') || isMobile() || isTablet()) return;
+        if (dragMoved) return; /* 드래그였으면 클릭 무시 */
+        const idx = parseInt(this.dataset.index);
+        if (this.classList.contains('expanded')) {
+            const r = this.getBoundingClientRect();
+            rotate(this, e.clientX - r.left < r.width / 2 ? -1 : 1);
+        } else { showProject(idx); }
+    }));
+
+    /* ── 레이아웃: 기본 (갤러리) ── */
+    function layoutDefault() {
+        strips.forEach((s, i) => {
+            s.style.left      = `${baseLeft(i) - scrollOffsetX}px`;
+            s.style.top       = '50%';
+            s.style.width     = `${STRIP_W}px`;
+            s.style.height    = 'var(--strip-height)';
+            s.style.transform = 'translate(-50%,-50%)';
+            s.style.opacity   = '0.4';
+            s.style.zIndex    = '10';
+            s.style.pointerEvents = 'auto';
+            s.classList.remove('expanded', 'peek');
+        });
     }
 
-    /* ── 레이아웃: 상세 확장 ── */
+    /* ── 레이아웃: 상세 ── */
     function layoutDetail() {
         const n = TITLES.length;
         strips.forEach((s, i) => {
             s.style.top = '50%';
             if (i === currentIndex) {
-                s.style.left = '50vw'; s.style.width = 'calc(var(--strip-height) * 16 / 9)';
-                s.style.height = 'var(--strip-height)'; s.style.transform = 'translate(-50%,-50%)';
-                s.style.opacity = '1'; s.style.zIndex = '3000'; s.style.pointerEvents = 'auto';
+                s.style.left='50vw'; s.style.width='calc(var(--strip-height)*16/9)';
+                s.style.height='var(--strip-height)'; s.style.transform='translate(-50%,-50%)';
+                s.style.opacity='1'; s.style.zIndex='3000'; s.style.pointerEvents='auto';
                 s.classList.add('expanded'); s.classList.remove('peek');
-            } else if (i === (currentIndex - 1 + n) % n) {
-                s.style.left = '10vw'; s.style.width = '12vw'; s.style.height = 'var(--strip-height)';
-                s.style.transform = 'translate(-50%,-50%) rotateY(15deg) scale(1.023)';
-                s.style.opacity = '0.25'; s.style.zIndex = '1500'; s.style.pointerEvents = 'auto';
+            } else if (i === (currentIndex-1+n)%n) {
+                s.style.left='10vw'; s.style.width='12vw'; s.style.height='var(--strip-height)';
+                s.style.transform='translate(-50%,-50%) rotateY(15deg) scale(1.023)';
+                s.style.opacity='0.25'; s.style.zIndex='1500'; s.style.pointerEvents='auto';
                 s.classList.add('peek'); s.classList.remove('expanded');
-            } else if (i === (currentIndex + 1) % n) {
-                s.style.left = '90vw'; s.style.width = '12vw'; s.style.height = 'var(--strip-height)';
-                s.style.transform = 'translate(-50%,-50%) rotateY(-15deg) scale(1.023)';
-                s.style.opacity = '0.25'; s.style.zIndex = '1500'; s.style.pointerEvents = 'auto';
+            } else if (i === (currentIndex+1)%n) {
+                s.style.left='90vw'; s.style.width='12vw'; s.style.height='var(--strip-height)';
+                s.style.transform='translate(-50%,-50%) rotateY(-15deg) scale(1.023)';
+                s.style.opacity='0.25'; s.style.zIndex='1500'; s.style.pointerEvents='auto';
                 s.classList.add('peek'); s.classList.remove('expanded');
             } else {
-                s.style.left = i === (currentIndex - 2 + n) % n ? '-20vw'
-                             : i === (currentIndex + 2) % n    ? '120vw' : '50vw';
-                s.style.width = '12vw'; s.style.height = 'var(--strip-height)';
-                s.style.transform = 'translate(-50%,-50%) scale(0.5)';
-                s.style.opacity = '0'; s.style.zIndex = '1000'; s.style.pointerEvents = 'none';
+                const offL = i===(currentIndex-2+n)%n ? '-20vw' : i===(currentIndex+2)%n ? '120vw' : '50vw';
+                s.style.left=offL; s.style.width='12vw'; s.style.height='var(--strip-height)';
+                s.style.transform='translate(-50%,-50%) scale(0.5)';
+                s.style.opacity='0'; s.style.zIndex='1000'; s.style.pointerEvents='none';
                 s.classList.remove('expanded','peek');
             }
         });
     }
 
-    /* ── 프로젝트 열기 ── */
     function showProject(index) {
         const entering = !body.classList.contains('is-detail');
-        currentIndex = index;
+        currentIndex   = index;
         if (expandedTitle) expandedTitle.innerText = TITLES[index];
         if (entering) body.classList.add('is-detail');
-
         const photos = strips[index].querySelectorAll('.photo');
-        photos.forEach((p,i) => p.classList.toggle('active', i === 0));
-
-        pagerContainer.innerHTML = Array.from(photos).map((photo, pIdx) => `
-            <div class="pager-item ${pIdx===0?'active':''}"
-                 style="${photo.getAttribute('style')}"
-                 onclick="event.stopPropagation(); pcJump(${index},${pIdx})"></div>
-        `).join('');
-
+        photos.forEach((p,i) => p.classList.toggle('active', i===0));
+        pagerContainer.innerHTML = Array.from(photos).map((ph,pIdx)=>`
+            <div class="pager-item ${pIdx===0?'active':''}" style="${ph.getAttribute('style')}"
+                 onclick="event.stopPropagation();pcJump(${index},${pIdx})"></div>`).join('');
         if (entering) {
-            strips.forEach((s, i) => {
-                if (i === index) {
-                    s.style.left = '50vw'; s.style.width = 'calc(var(--strip-height) * 16 / 9)';
-                    s.style.height = 'var(--strip-height)'; s.style.transform = 'translate(-50%,-50%)';
-                    s.style.opacity = '1'; s.style.zIndex = '3000'; s.style.pointerEvents = 'auto';
+            strips.forEach((s,i)=>{
+                if(i===index){
+                    s.style.left='50vw'; s.style.width='calc(var(--strip-height)*16/9)';
+                    s.style.height='var(--strip-height)'; s.style.transform='translate(-50%,-50%)';
+                    s.style.opacity='1'; s.style.zIndex='3000'; s.style.pointerEvents='auto';
                     s.classList.add('expanded'); s.classList.remove('peek');
                 } else {
-                    s.style.transition = 'opacity 0.6s var(--ease)';
-                    s.style.opacity = '0'; s.style.pointerEvents = 'none';
+                    s.style.transition='opacity 0.6s var(--ease)';
+                    s.style.opacity='0'; s.style.pointerEvents='none';
                 }
             });
-            setTimeout(() => { strips.forEach(s => { s.style.transition = ''; }); layoutDetail(); }, 600);
-        } else {
-            layoutDetail();
-        }
+            setTimeout(()=>{ strips.forEach(s=>{s.style.transition='';}); layoutDetail(); }, 600);
+        } else { layoutDetail(); }
     }
 
-    /* ── 사진 이동 (전역 노출) ── */
-    window.pcNav  = (idx, dir) => rotate(strips[idx], dir);
-    window.pcJump = (projIdx, photoIdx) => {
-        const photos = strips[projIdx].querySelectorAll('.photo');
-        const pagers = pagerContainer.querySelectorAll('.pager-item');
-        photos.forEach((p,i) => p.classList.toggle('active', i === photoIdx));
-        pagers.forEach((pg,i) => pg.classList.toggle('active', i === photoIdx));
+    window.pcNav  = (idx,dir) => rotate(strips[idx],dir);
+    window.pcJump = (projIdx,photoIdx) => {
+        strips[projIdx].querySelectorAll('.photo').forEach((p,i)=>p.classList.toggle('active',i===photoIdx));
+        pagerContainer.querySelectorAll('.pager-item').forEach((pg,i)=>pg.classList.toggle('active',i===photoIdx));
     };
 
     function rotate(strip, dir) {
         const photos = strip.querySelectorAll('.photo');
         const pagers = pagerContainer.querySelectorAll('.pager-item');
         if (!pagers.length) return;
-        let idx = Array.from(photos).findIndex(p => p.classList.contains('active'));
-        photos[idx].classList.remove('active');
-        if (pagers[idx]) pagers[idx].classList.remove('active');
-        idx = (idx + dir + photos.length) % photos.length;
-        photos[idx].classList.add('active');
-        if (pagers[idx]) pagers[idx].classList.add('active');
+        let idx = Array.from(photos).findIndex(p=>p.classList.contains('active'));
+        photos[idx].classList.remove('active'); if(pagers[idx]) pagers[idx].classList.remove('active');
+        idx = (idx+dir+photos.length) % photos.length;
+        photos[idx].classList.add('active'); if(pagers[idx]) pagers[idx].classList.add('active');
     }
 
-    /* ── 프로젝트 닫기 (전역 노출) ── */
     window.pcShrink = function() {
         body.classList.remove('is-detail');
-        const old  = currentIndex;
-        currentIndex = -1;
-        const n    = TITLES.length;
-        const half = (n - 1) / 2;
-        const gap  = isTablet() ? 130 : 215;
-        const w    = isTablet() ? '115px' : '195px';
-
+        const old = currentIndex; currentIndex = -1;
+        /* 선택된 스트립 복귀 */
         strips[old].style.transition = '';
-        strips[old].style.left = `calc(50vw + ${(old - half) * gap}px)`;
-        strips[old].style.width = w; strips[old].style.height = 'var(--strip-height)';
+        strips[old].style.left      = `${baseLeft(old) - scrollOffsetX}px`;
+        strips[old].style.width     = `${STRIP_W}px`;
+        strips[old].style.height    = 'var(--strip-height)';
         strips[old].style.transform = 'translate(-50%,-50%)';
-        strips[old].style.opacity = '0.4'; strips[old].style.zIndex = '10';
+        strips[old].style.opacity   = '0.4';
+        strips[old].style.zIndex    = '10';
         strips[old].style.pointerEvents = 'auto';
         strips[old].classList.remove('expanded','peek');
-
+        /* 나머지 스트립 랜덤 복귀 애니메이션 */
         const others = [];
-        strips.forEach((s, i) => {
-            if (i === old) return;
+        strips.forEach((s,i)=>{
+            if(i===old) return;
             s.style.transition = 'none';
-            s.style.left = `calc(50vw + ${(i - half) * gap}px)`;
-            s.style.width = w; s.style.height = 'var(--strip-height)';
-            s.style.zIndex = '10'; s.style.opacity = '0';
-            s.style.top = Math.random() > 0.5 ? 'calc(50% - 100px)' : 'calc(50% + 100px)';
-            s.style.transform = 'translate(-50%,-50%)'; s.style.pointerEvents = 'none';
+            s.style.left       = `${baseLeft(i) - scrollOffsetX}px`;
+            s.style.width      = `${STRIP_W}px`;
+            s.style.height     = 'var(--strip-height)';
+            s.style.zIndex     = '10'; s.style.opacity='0';
+            s.style.top        = Math.random()>0.5 ? 'calc(50% - 100px)' : 'calc(50% + 100px)';
+            s.style.transform  = 'translate(-50%,-50%)';
+            s.style.pointerEvents = 'none';
             s.classList.remove('expanded','peek');
             others.push(s);
         });
-        for (let i = others.length-1; i > 0; i--) {
-            const j = Math.floor(Math.random()*(i+1));
-            [others[i], others[j]] = [others[j], others[i]];
-        }
-        requestAnimationFrame(() => { requestAnimationFrame(() => {
-            others.forEach((s, idx) => {
-                const delay = (idx * (1.0 / (others.length-1))).toFixed(2);
+        for(let i=others.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[others[i],others[j]]=[others[j],others[i]];}
+        requestAnimationFrame(()=>{ requestAnimationFrame(()=>{
+            others.forEach((s,idx)=>{
+                const delay = (idx*(1.0/(others.length-1))).toFixed(2);
                 s.style.transition = `top 0.5s var(--ease) ${delay}s, opacity 0.5s var(--ease) ${delay}s`;
-                s.style.top = '50%'; s.style.opacity = '0.4'; s.style.pointerEvents = 'auto';
-                setTimeout(() => { s.style.transition = ''; }, (parseFloat(delay)+0.5)*1000+100);
+                s.style.top='50%'; s.style.opacity='0.4'; s.style.pointerEvents='auto';
+                setTimeout(()=>{ s.style.transition=''; }, (parseFloat(delay)+0.5)*1000+100);
             });
         }); });
         pagerContainer.innerHTML = '';
-        document.querySelectorAll('.photo').forEach(p =>
-            p.classList.toggle('active', p === p.parentElement.querySelector('.photo'))
-        );
+        document.querySelectorAll('.photo').forEach(p=>p.classList.toggle('active',p===p.parentElement.querySelector('.photo')));
     };
-
-    /* ── 태블릿 가로 스크롤 바운스 ── */
-    (function tabBounce() {
-        if (!isTablet()) return;
-        const scroll = document.getElementById('tab-stage-scroll');
-        if (!scroll) return;
-
-        const STIFFNESS  = 0.18;   /* 바운스 스프링 강도 */
-        const DAMPING    = 0.72;   /* 감쇠 */
-        const OVERSCROLL = 80;     /* px — 최대 바운스 */
-        let rafId = null;
-        let vel   = 0;
-        let extra = 0;             /* 초과 변위 */
-        let touching = false;
-        let lastX    = 0;
-
-        scroll.addEventListener('touchstart', e => {
-            touching = true;
-            lastX    = e.touches[0].clientX;
-            vel      = 0;
-            if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-        }, { passive: true });
-
-        scroll.addEventListener('touchmove', e => {
-            if (!touching) return;
-            const dx   = lastX - e.touches[0].clientX;
-            lastX      = e.touches[0].clientX;
-            const max  = scroll.scrollWidth - scroll.clientWidth;
-            const cur  = scroll.scrollLeft;
-
-            /* 끝에서 초과 시 저항 적용 */
-            if ((cur <= 0 && dx < 0) || (cur >= max && dx > 0)) {
-                extra += dx * 0.25;
-                extra  = Math.max(-OVERSCROLL, Math.min(OVERSCROLL, extra));
-                stage.style.transform = `translateX(${-extra}px)`;
-            } else {
-                scroll.scrollLeft += dx;
-                vel = dx;
-            }
-        }, { passive: true });
-
-        scroll.addEventListener('touchend', () => {
-            touching = false;
-            /* 바운스 복원 */
-            if (Math.abs(extra) > 0.5) {
-                (function spring() {
-                    extra *= DAMPING;
-                    extra -= extra * STIFFNESS * 5;
-                    stage.style.transform = `translateX(${-extra}px)`;
-                    if (Math.abs(extra) > 0.5) rafId = requestAnimationFrame(spring);
-                    else { extra = 0; stage.style.transform = ''; }
-                })();
-            }
-            /* 관성 스크롤 */
-            (function inertia() {
-                if (Math.abs(vel) < 0.5) { vel = 0; return; }
-                vel      *= 0.92;
-                const max = scroll.scrollWidth - scroll.clientWidth;
-                scroll.scrollLeft = Math.max(0, Math.min(max, scroll.scrollLeft + vel));
-                rafId = requestAnimationFrame(inertia);
-            })();
-        }, { passive: true });
-    })();
 })();
 
 
-/* ╔═══════════════════════════════════════════════════════╗
-   ║  MOBILE LOGIC                                         ║
-   ╚═══════════════════════════════════════════════════════╝ */
+/* ═══════════════════════════════════════
+   TABLET
+═══════════════════════════════════════ */
+(function tabInit() {
+    const track      = document.getElementById('tab-track');
+    const wrap       = document.getElementById('tab-gallery-wrap');
+    const viewer     = document.getElementById('tab-viewer');
+    const mainBlock  = document.getElementById('tab-main-block');
+    const thumbsEl   = document.getElementById('tab-thumbs');
+    const titleEl    = document.getElementById('tab-detail-title');
+    const tapPrev    = document.getElementById('tab-tap-prev');
+    const tapNext    = document.getElementById('tab-tap-next');
+    const peekTop    = document.getElementById('tab-peek-top');
+    const peekBot    = document.getElementById('tab-peek-bottom');
+    const peekTopLbl = document.getElementById('tab-peek-top-label');
+    const peekBotLbl = document.getElementById('tab-peek-bottom-label');
+    const EASE='cubic-bezier(0.23, 1, 0.32, 1)', DUR=750;
+    let curProject=-1, curPhoto=0, switching=false;
 
-(function mobInit() {
-    const grid         = document.getElementById('mob-grid');
-    const viewer       = document.getElementById('mob-viewer');
-    const mainBlock    = document.getElementById('mob-main-block');
-    const thumbsEl     = document.getElementById('mob-thumbs');
-    const titleEl      = document.getElementById('mob-detail-title');
-    const tapPrev      = document.getElementById('mob-tap-prev');
-    const tapNext      = document.getElementById('mob-tap-next');
-    const peekTop      = document.getElementById('mob-peek-top');
-    const peekBottom   = document.getElementById('mob-peek-bottom');
-    const peekTopLbl   = document.getElementById('mob-peek-top-label');
-    const peekBotLbl   = document.getElementById('mob-peek-bottom-label');
-    const EASE         = 'cubic-bezier(0.23, 1, 0.32, 1)';
-    const DUR          = 750;
-
-    let curProject = -1;
-    let curPhoto   = 0;
-    let switching  = false;
-
-    /* ── 카드 목록 생성 ── */
-    TITLES.forEach((t, i) => {
+    TITLES.forEach((t,i) => {
         const card = document.createElement('div');
-        card.className = 'mob-card';
+        card.className = 'tab-card';
         card.innerHTML = `
-            <div class="mob-card-bg" style="background-image:url('${IMAGES[i][0]}')"></div>
-            <div class="mob-card-overlay"></div>
-            <div class="mob-card-title">${t}</div>
-        `;
+            <div class="tab-card-bg" style="background-image:url('${IMAGES[i][0]}')"></div>
+            <div class="tab-card-overlay"></div>
+            <div class="tab-card-title">${t}</div>`;
         card.addEventListener('click', () => {
             if (!body.classList.contains('is-started')) return;
-            showProject(i);
+            tabShowProject(i);
         });
-        grid.appendChild(card);
+        track.appendChild(card);
     });
 
-    tapPrev.addEventListener('click', () => rotatePhoto(-1));
-    tapNext.addEventListener('click', () => rotatePhoto(1));
+    (function touchScroll() {
+        const CARD_W=280,GAP=20,FRICTION=0.88,SPRING_K=0.14,SPRING_D=0.72,MAX_OVER=80,RESIST=0.25;
+        let posX=0,velX=0,overX=0,touching=false,lastTX=0,rafId=null;
+        function maxPosX(){
+            const pad=window.innerWidth/2-CARD_W/2;
+            return Math.max(0,pad*2+TITLES.length*(CARD_W+GAP)-GAP-window.innerWidth);
+        }
+        function apply(){
+            track.style.transform=`translateX(${-(Math.max(0,Math.min(maxPosX(),posX))+overX)}px)`;
+        }
+        wrap.addEventListener('touchstart',e=>{
+            if(body.classList.contains('is-detail'))return;
+            touching=true;lastTX=e.touches[0].clientX;velX=0;overX=0;
+            if(rafId){cancelAnimationFrame(rafId);rafId=null;}
+        },{passive:true});
+        wrap.addEventListener('touchmove',e=>{
+            if(!touching||body.classList.contains('is-detail'))return;
+            const dx=lastTX-e.touches[0].clientX;lastTX=e.touches[0].clientX;
+            const max=maxPosX();
+            if((posX<=0&&dx<0)||(posX>=max&&dx>0)){overX+=dx*RESIST;overX=Math.max(-MAX_OVER,Math.min(MAX_OVER,overX));}
+            else{posX=Math.max(0,Math.min(max,posX+dx));velX=dx;}
+            apply();
+        },{passive:true});
+        wrap.addEventListener('touchend',()=>{
+            if(!touching)return;touching=false;
+            (function loop(){
+                let active=false;
+                if(Math.abs(velX)>0.4){posX=Math.max(0,Math.min(maxPosX(),posX+velX));velX*=FRICTION;active=true;}else velX=0;
+                if(Math.abs(overX)>0.4){overX-=overX*SPRING_K*5;overX*=SPRING_D;active=true;}else overX=0;
+                apply();
+                if(active)rafId=requestAnimationFrame(loop);
+            })();
+        },{passive:true});
+    })();
 
-    function updatePeek(index) {
-        const n    = TITLES.length;
-        const prev = (index - 1 + n) % n;
-        const next = (index + 1)     % n;
-        peekTop.style.backgroundImage    = `url('${IMAGES[prev][0]}')`;
-        peekBottom.style.backgroundImage = `url('${IMAGES[next][0]}')`;
-        peekTopLbl.textContent = TITLES[prev];
-        peekBotLbl.textContent = TITLES[next];
+    tapPrev.addEventListener('click',()=>tabRotatePhoto(-1));
+    tapNext.addEventListener('click',()=>tabRotatePhoto(1));
+
+    function updatePeek(index){
+        const n=TITLES.length,prev=(index-1+n)%n,next=(index+1)%n;
+        peekTop.style.backgroundImage=`url('${IMAGES[prev][0]}')`;
+        peekBot.style.backgroundImage=`url('${IMAGES[next][0]}')`;
+        peekTopLbl.textContent=TITLES[prev];peekBotLbl.textContent=TITLES[next];
     }
-
-    function loadContent(index) {
-        titleEl.textContent = TITLES[index];
-
-        viewer.querySelectorAll('.mob-slide').forEach(el => el.remove());
-        IMAGES[index].forEach((url, p) => {
-            const s = document.createElement('div');
-            s.className = 'mob-slide' + (p === 0 ? ' active' : '');
-            s.style.backgroundImage = `url('${url}')`;
-            viewer.insertBefore(s, tapPrev);
+    function loadContent(index){
+        titleEl.textContent=TITLES[index];
+        viewer.querySelectorAll('.tab-slide').forEach(el=>el.remove());
+        IMAGES[index].forEach((url,p)=>{
+            const s=document.createElement('div');
+            s.className='tab-slide'+(p===0?' active':'');
+            s.style.backgroundImage=`url('${url}')`;
+            viewer.insertBefore(s,tapPrev);
         });
-
-        thumbsEl.innerHTML = IMAGES[index].map((url, p) => `
-            <div class="mob-thumb ${p === 0 ? 'active' : ''}"
-                 style="background-image:url('${url}')"
-                 onclick="event.stopPropagation(); mobJumpPhoto(${p})"></div>
-        `).join('');
-
+        thumbsEl.innerHTML=IMAGES[index].map((url,p)=>
+            `<div class="tab-thumb ${p===0?'active':''}" style="background-image:url('${url}')"
+             onclick="event.stopPropagation();tabJumpPhoto(${p})"></div>`).join('');
         updatePeek(index);
     }
-
-    function showProject(index) {
-        curProject = index;
-        curPhoto   = 0;
-        body.classList.add('is-detail');
-        loadContent(index);
-    }
-
-    window.mobJumpPhoto = function(photoIdx) {
-        viewer.querySelectorAll('.mob-slide').forEach((s, i) =>
-            s.classList.toggle('active', i === photoIdx));
-        thumbsEl.querySelectorAll('.mob-thumb').forEach((t, i) =>
-            t.classList.toggle('active', i === photoIdx));
-        curPhoto = photoIdx;
+    function tabShowProject(index){curProject=index;curPhoto=0;body.classList.add('is-detail');loadContent(index);}
+    window.tabJumpPhoto=function(pi){
+        viewer.querySelectorAll('.tab-slide').forEach((s,i)=>s.classList.toggle('active',i===pi));
+        thumbsEl.querySelectorAll('.tab-thumb').forEach((t,i)=>t.classList.toggle('active',i===pi));
+        curPhoto=pi;
     };
-
-    function rotatePhoto(dir) {
-        const count = viewer.querySelectorAll('.mob-slide').length;
-        mobJumpPhoto((curPhoto + dir + count) % count);
-    }
-
-    window.mobSwitchProject = function(dir) {
-        if (switching) return;
-        switching = true;
-
-        const newIdx = (curProject + dir + TITLES.length) % TITLES.length;
-
-        const outY = dir > 0 ? '-55px' : '55px';
-
-        setStyle(mainBlock, {
-            transition: `transform ${DUR}ms ${EASE}, opacity ${Math.round(DUR * 0.65)}ms ${EASE}`,
-            transform:  `translateY(${outY})`,
-            opacity:    '0'
-        });
-        [peekTop, peekBottom].forEach(pk => setStyle(pk, {
-            transition: `transform ${DUR}ms ${EASE}, opacity ${Math.round(DUR * 0.55)}ms ${EASE}`,
-            transform:  `scale(0.88) translateY(${dir > 0 ? '-18px' : '18px'})`,
-            opacity:    '0'
-        }));
-
-        setTimeout(() => {
-            curProject = newIdx;
-            curPhoto   = 0;
-            loadContent(newIdx);
-
-            const inY = dir > 0 ? '55px' : '-55px';
-            setStyle(mainBlock, { transition:'none', transform:`translateY(${inY})`, opacity:'0' });
-            [peekTop, peekBottom].forEach(pk => setStyle(pk, {
-                transition: 'none',
-                transform:  `scale(0.88) translateY(${dir > 0 ? '18px' : '-18px'})`,
-                opacity:    '0'
+    function tabRotatePhoto(dir){const c=viewer.querySelectorAll('.tab-slide').length;tabJumpPhoto((curPhoto+dir+c)%c);}
+    window.tabSwitchProject=function(dir){
+        if(switching)return;switching=true;
+        const ni=(curProject+dir+TITLES.length)%TITLES.length;
+        const outY=dir>0?'-55px':'55px';
+        ss(mainBlock,{transition:`transform ${DUR}ms ${EASE},opacity ${Math.round(DUR*.65)}ms ${EASE}`,transform:`translateY(${outY})`,opacity:'0'});
+        [peekTop,peekBot].forEach(pk=>ss(pk,{transition:`transform ${DUR}ms ${EASE},opacity ${Math.round(DUR*.55)}ms ${EASE}`,transform:`scale(0.88) translateY(${dir>0?'-18px':'18px'})`,opacity:'0'}));
+        setTimeout(()=>{
+            curProject=ni;curPhoto=0;loadContent(ni);
+            const inY=dir>0?'55px':'-55px';
+            ss(mainBlock,{transition:'none',transform:`translateY(${inY})`,opacity:'0'});
+            [peekTop,peekBot].forEach(pk=>ss(pk,{transition:'none',transform:`scale(0.88) translateY(${dir>0?'18px':'-18px'})`,opacity:'0'}));
+            requestAnimationFrame(()=>requestAnimationFrame(()=>{
+                ss(mainBlock,{transition:`transform ${DUR}ms ${EASE},opacity ${Math.round(DUR*.8)}ms ${EASE}`,transform:'translateY(0)',opacity:'1'});
+                [peekTop,peekBot].forEach(pk=>ss(pk,{transition:`transform ${DUR}ms ${EASE},opacity ${Math.round(DUR*.8)}ms ${EASE}`,transform:'scale(0.88)',opacity:'0.25'}));
+                setTimeout(()=>{cs(mainBlock);cs(peekTop);cs(peekBot);switching=false;},DUR+60);
             }));
-
-            requestAnimationFrame(() => requestAnimationFrame(() => {
-                setStyle(mainBlock, {
-                    transition: `transform ${DUR}ms ${EASE}, opacity ${Math.round(DUR * 0.8)}ms ${EASE}`,
-                    transform:  'translateY(0)',
-                    opacity:    '1'
-                });
-                [peekTop, peekBottom].forEach(pk => setStyle(pk, {
-                    transition: `transform ${DUR}ms ${EASE}, opacity ${Math.round(DUR * 0.8)}ms ${EASE}`,
-                    transform:  'scale(0.88)',
-                    opacity:    '0.25'
-                }));
-
-                setTimeout(() => {
-                    clearStyle(mainBlock);
-                    clearStyle(peekTop);
-                    clearStyle(peekBottom);
-                    switching = false;
-                }, DUR + 60);
-            }));
-        }, DUR * 0.42);
+        },DUR*.42);
     };
-
-    window.mobShrink = function() {
-        body.classList.remove('is-detail');
-        curProject = -1;
-        clearStyle(mainBlock);
-        clearStyle(peekTop);
-        clearStyle(peekBottom);
-        switching = false;
-    };
-
-    function setStyle(el, props) {
-        Object.assign(el.style, props);
-    }
-    function clearStyle(el) {
-        el.style.transition = '';
-        el.style.transform  = '';
-        el.style.opacity    = '';
-    }
+    window.tabShrink=function(){body.classList.remove('is-detail');curProject=-1;cs(mainBlock);cs(peekTop);cs(peekBot);switching=false;};
+    function ss(el,p){Object.assign(el.style,p);}
+    function cs(el){el.style.transition='';el.style.transform='';el.style.opacity='';}
 })();
 
+
+/* ═══════════════════════════════════════
+   MOBILE
+═══════════════════════════════════════ */
+(function mobInit() {
+    const grid       = document.getElementById('mob-grid');
+    const viewer     = document.getElementById('mob-viewer');
+    const mainBlock  = document.getElementById('mob-main-block');
+    const thumbsEl   = document.getElementById('mob-thumbs');
+    const titleEl    = document.getElementById('mob-detail-title');
+    const tapPrev    = document.getElementById('mob-tap-prev');
+    const tapNext    = document.getElementById('mob-tap-next');
+    const peekTop    = document.getElementById('mob-peek-top');
+    const peekBot    = document.getElementById('mob-peek-bottom');
+    const peekTopLbl = document.getElementById('mob-peek-top-label');
+    const peekBotLbl = document.getElementById('mob-peek-bottom-label');
+    const EASE='cubic-bezier(0.23, 1, 0.32, 1)', DUR=750;
+    let curProject=-1, curPhoto=0, switching=false;
+
+    TITLES.forEach((t,i)=>{
+        const card=document.createElement('div');
+        card.className='mob-card';
+        card.innerHTML=`<div class="mob-card-bg" style="background-image:url('${IMAGES[i][0]}')"></div>
+            <div class="mob-card-overlay"></div><div class="mob-card-title">${t}</div>`;
+        card.addEventListener('click',()=>{if(!body.classList.contains('is-started'))return;showProject(i);});
+        grid.appendChild(card);
+    });
+    tapPrev.addEventListener('click',()=>rotatePhoto(-1));
+    tapNext.addEventListener('click',()=>rotatePhoto(1));
+    function updatePeek(index){
+        const n=TITLES.length,prev=(index-1+n)%n,next=(index+1)%n;
+        peekTop.style.backgroundImage=`url('${IMAGES[prev][0]}')`;
+        peekBot.style.backgroundImage=`url('${IMAGES[next][0]}')`;
+        peekTopLbl.textContent=TITLES[prev];peekBotLbl.textContent=TITLES[next];
+    }
+    function loadContent(index){
+        titleEl.textContent=TITLES[index];
+        viewer.querySelectorAll('.mob-slide').forEach(el=>el.remove());
+        IMAGES[index].forEach((url,p)=>{
+            const s=document.createElement('div');
+            s.className='mob-slide'+(p===0?' active':'');
+            s.style.backgroundImage=`url('${url}')`;
+            viewer.insertBefore(s,tapPrev);
+        });
+        thumbsEl.innerHTML=IMAGES[index].map((url,p)=>
+            `<div class="mob-thumb ${p===0?'active':''}" style="background-image:url('${url}')"
+             onclick="event.stopPropagation();mobJumpPhoto(${p})"></div>`).join('');
+        updatePeek(index);
+    }
+    function showProject(index){curProject=index;curPhoto=0;body.classList.add('is-detail');loadContent(index);}
+    window.mobJumpPhoto=function(pi){
+        viewer.querySelectorAll('.mob-slide').forEach((s,i)=>s.classList.toggle('active',i===pi));
+        thumbsEl.querySelectorAll('.mob-thumb').forEach((t,i)=>t.classList.toggle('active',i===pi));
+        curPhoto=pi;
+    };
+    function rotatePhoto(dir){const c=viewer.querySelectorAll('.mob-slide').length;mobJumpPhoto((curPhoto+dir+c)%c);}
+    window.mobSwitchProject=function(dir){
+        if(switching)return;switching=true;
+        const ni=(curProject+dir+TITLES.length)%TITLES.length;
+        const outY=dir>0?'-55px':'55px';
+        ss(mainBlock,{transition:`transform ${DUR}ms ${EASE},opacity ${Math.round(DUR*.65)}ms ${EASE}`,transform:`translateY(${outY})`,opacity:'0'});
+        [peekTop,peekBot].forEach(pk=>ss(pk,{transition:`transform ${DUR}ms ${EASE},opacity ${Math.round(DUR*.55)}ms ${EASE}`,transform:`scale(0.88) translateY(${dir>0?'-18px':'18px'})`,opacity:'0'}));
+        setTimeout(()=>{
+            curProject=ni;curPhoto=0;loadContent(ni);
+            const inY=dir>0?'55px':'-55px';
+            ss(mainBlock,{transition:'none',transform:`translateY(${inY})`,opacity:'0'});
+            [peekTop,peekBot].forEach(pk=>ss(pk,{transition:'none',transform:`scale(0.88) translateY(${dir>0?'18px':'-18px'})`,opacity:'0'}));
+            requestAnimationFrame(()=>requestAnimationFrame(()=>{
+                ss(mainBlock,{transition:`transform ${DUR}ms ${EASE},opacity ${Math.round(DUR*.8)}ms ${EASE}`,transform:'translateY(0)',opacity:'1'});
+                [peekTop,peekBot].forEach(pk=>ss(pk,{transition:`transform ${DUR}ms ${EASE},opacity ${Math.round(DUR*.8)}ms ${EASE}`,transform:'scale(0.88)',opacity:'0.25'}));
+                setTimeout(()=>{cs(mainBlock);cs(peekTop);cs(peekBot);switching=false;},DUR+60);
+            }));
+        },DUR*.42);
+    };
+    window.mobShrink=function(){body.classList.remove('is-detail');curProject=-1;cs(mainBlock);cs(peekTop);cs(peekBot);switching=false;};
+    function ss(el,p){Object.assign(el.style,p);}
+    function cs(el){el.style.transition='';el.style.transform='';el.style.opacity='';}
+})();
 </script>
 </body>
 </html>
