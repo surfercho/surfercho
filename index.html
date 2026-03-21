@@ -116,55 +116,23 @@
         body.is-detail #stage { padding-top: var(--detail-top-padding); background-color: rgba(0, 0, 0, 0.7); }
 
         .project-strip { 
-            position: relative; 
-            flex: 0 0 195px; 
-            height: var(--strip-height); 
-            margin: 0 10px; 
-            transition: flex var(--transition), height var(--transition), transform var(--transition), margin var(--transition); 
+            position: absolute; 
+            top: 50%;
+            transform: translate(-50%, -50%);
             border-radius: var(--radius); 
             z-index: 10; display: flex; align-items: center; justify-content: center; 
             opacity: 0.4; background-size: cover; background-position: center;
             background-color: #222;
-            will-change: flex, transform, height;
+            transition: width var(--transition), height var(--transition), transform var(--transition), left var(--transition), opacity var(--transition), z-index 0s; 
+            will-change: transform, width, height, left;
+            cursor: pointer !important;
         }
-        body:not(.is-detail) .project-strip:hover { opacity: 1; transition: opacity 0.3s ease, flex var(--transition), height var(--transition), transform var(--transition); }
+        body:not(.is-detail) .project-strip:hover { opacity: 1; transform: translate(-50%, -50%) scale(1.05); transition: opacity 0.3s ease, transform var(--transition); }
         
-        .project-strip.expanded { 
-            height: var(--strip-height); 
-            flex: 0 0 calc(var(--strip-height) * 16 / 9);
-            z-index: 3000; opacity: 1 !important; margin: 0; transform: translateX(0); 
+        .project-strip.peek:hover {
+            opacity: 0.5 !important;
+            transition: opacity 0.4s var(--ease) !important;
         }
-
-        .project-strip.collapsed { 
-            flex: 0 0 0px; 
-            opacity: 0 !important; 
-            pointer-events: none; 
-            margin: 0;
-            transform: scale(0.8);
-            transition: opacity 0s, flex var(--transition), margin var(--transition), transform var(--transition);
-        }
-
-        .side-peek { 
-            position: absolute; top: 50%; width: 12vw; height: 100%; 
-            transform: translateY(-50%); border-radius: var(--radius); 
-            background-size: cover; background-position: center; 
-            opacity: 0; visibility: hidden; 
-            z-index: 1500; cursor: pointer !important; background-color: #333;
-            transition: opacity 0s, visibility 0s;
-        }
-
-        body.is-detail .side-peek { 
-            opacity: 0.25; visibility: visible; 
-            transition: opacity 1s var(--ease) 1.1s, visibility 1s 1.1s; 
-        }
-
-        body.is-detail .side-peek:hover { 
-            opacity: 0.5; 
-            transition: opacity 0.4s var(--ease) !important; 
-        }
-
-        .peek-prev { left: -14vw; transform: translateY(-50%) rotateY(15deg); }
-        .peek-next { right: -14vw; transform: translateY(-50%) rotateY(-15deg); }
         
         .strip-img-wrapper { width: 100%; height: 100%; position: absolute; border-radius: var(--radius); overflow: hidden; z-index: 1; background-color: transparent; }
         .project-strip.expanded .strip-img-wrapper { background-color: #000; }
@@ -236,8 +204,6 @@
 
         stage.innerHTML = titles.map((t, i) => `
             <div class="project-strip strip-${i}" data-title="${t}" data-index="${i}" style="background-image: url('${projectImages[i][0]}')">
-                <div class="side-peek peek-prev"></div>
-                <div class="side-peek peek-next"></div>
                 <div class="thumb-title">${t}</div>
                 <div class="strip-img-wrapper">
                     <div class="photo-nav photo-nav-prev" onclick="event.stopPropagation(); navigatePhoto(${i}, -1)">&#10216;</div>
@@ -252,6 +218,7 @@
         `).join('');
 
         const strips = document.querySelectorAll('.project-strip');
+        updateStripPositions();
 
         strips.forEach(strip => {
             strip.addEventListener('click', function(e) {
@@ -270,13 +237,81 @@
             rotatePhotos(strips[projectIdx], direction);
         }
 
+        let currentDetailIndex = -1;
+
+        function updateStripPositions() {
+            if (!body.classList.contains('is-detail')) {
+                strips.forEach((s, i) => {
+                    const offset = i - 3;
+                    s.style.left = `calc(50vw + ${offset * 215}px)`;
+                    s.style.width = '195px';
+                    s.style.height = 'var(--strip-height)';
+                    s.style.transform = 'translate(-50%, -50%)';
+                    s.style.opacity = '0.4';
+                    s.style.zIndex = '10';
+                    s.style.pointerEvents = 'auto';
+                    s.classList.remove('expanded', 'peek');
+                });
+            } else {
+                strips.forEach((s, i) => {
+                    if (i === currentDetailIndex) {
+                        s.style.left = '50vw';
+                        s.style.width = 'calc(var(--strip-height) * 16 / 9)';
+                        s.style.height = 'var(--strip-height)';
+                        s.style.transform = 'translate(-50%, -50%)';
+                        s.style.opacity = '1';
+                        s.style.zIndex = '3000';
+                        s.style.pointerEvents = 'auto';
+                        s.classList.add('expanded');
+                        s.classList.remove('peek');
+                    } else if (i === (currentDetailIndex - 1 + titles.length) % titles.length) {
+                        s.style.left = '10vw';
+                        s.style.width = '12vw';
+                        s.style.height = 'var(--strip-height)';
+                        s.style.transform = 'translate(-50%, -50%) rotateY(15deg)';
+                        s.style.opacity = '0.25';
+                        s.style.zIndex = '1500';
+                        s.style.pointerEvents = 'auto';
+                        s.classList.add('peek');
+                        s.classList.remove('expanded');
+                    } else if (i === (currentDetailIndex + 1) % titles.length) {
+                        s.style.left = '90vw';
+                        s.style.width = '12vw';
+                        s.style.height = 'var(--strip-height)';
+                        s.style.transform = 'translate(-50%, -50%) rotateY(-15deg)';
+                        s.style.opacity = '0.25';
+                        s.style.zIndex = '1500';
+                        s.style.pointerEvents = 'auto';
+                        s.classList.add('peek');
+                        s.classList.remove('expanded');
+                    } else {
+                        if (i === (currentDetailIndex - 2 + titles.length) % titles.length) {
+                            s.style.left = '-20vw';
+                        } else if (i === (currentDetailIndex + 2) % titles.length) {
+                            s.style.left = '120vw';
+                        } else {
+                            s.style.left = '50vw';
+                        }
+                        s.style.width = '12vw';
+                        s.style.height = 'var(--strip-height)';
+                        s.style.transform = 'translate(-50%, -50%) scale(0.5)';
+                        s.style.opacity = '0';
+                        s.style.zIndex = '1000';
+                        s.style.pointerEvents = 'none';
+                        s.classList.remove('expanded', 'peek');
+                    }
+                });
+            }
+        }
+
         function showProject(index) {
+            currentDetailIndex = index;
             const currentStrip = strips[index];
             if (expandedTitleText) expandedTitleText.innerText = currentStrip.dataset.title;
             
-            body.classList.remove('is-detail');
-            void body.offsetWidth; 
-            body.classList.add('is-detail');
+            if (!body.classList.contains('is-detail')) {
+                body.classList.add('is-detail');
+            }
             
             const photos = currentStrip.querySelectorAll('.photo');
             photos.forEach((p, idx) => p.classList.toggle('active', idx === 0));
@@ -287,15 +322,7 @@
                      onclick="event.stopPropagation(); jumpToPhoto(${index}, ${pIdx})"></div>
             `).join('');
 
-            strips.forEach((s, i) => {
-                s.classList.remove('expanded', 'collapsed');
-                if(i === index) {
-                    s.classList.add('expanded');
-                    updatePeeks(s, i);
-                } else {
-                    s.classList.add('collapsed');
-                }
-            });
+            updateStripPositions();
         }
 
         function jumpToPhoto(projectIdx, photoIdx) {
@@ -318,23 +345,13 @@
             pagers[activeIdx].classList.add('active');
         }
 
-        function updatePeeks(parent, currentIdx) {
-            const prevIdx = (currentIdx - 1 + titles.length) % titles.length;
-            const nextIdx = (currentIdx + 1) % titles.length;
-            const prevPeek = parent.querySelector('.peek-prev');
-            const nextPeek = parent.querySelector('.peek-next');
-            prevPeek.style.backgroundImage = `url('${projectImages[prevIdx][0]}')`;
-            nextPeek.style.backgroundImage = `url('${projectImages[nextIdx][0]}')`;
-            prevPeek.onclick = (e) => { e.stopPropagation(); showProject(prevIdx); };
-            nextPeek.onclick = (e) => { e.stopPropagation(); showProject(nextIdx); };
-        }
+
 
         function shrinkProject() {
             body.classList.remove('is-detail');
-            setTimeout(() => {
-                strips.forEach(s => s.classList.remove('expanded', 'collapsed'));
-                pagerContainer.innerHTML = '';
-            }, 10); 
+            currentDetailIndex = -1;
+            updateStripPositions();
+            pagerContainer.innerHTML = '';
             document.querySelectorAll('.photo').forEach(p => p.classList.toggle('active', p.parentElement.children[0] === p));
         }
 
