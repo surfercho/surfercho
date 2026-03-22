@@ -182,6 +182,10 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
         display:block; pointer-events:none; position:absolute; inset:0;
     }
 
+    /* ── [FIX 1] 사진 전환 튀는 현상 수정 ──
+       .detail-photos 내 .photo 요소들이 겹쳐있을 때 z-index와 transition 타이밍 충돌 방지.
+       inactive → opacity:0 전환에 z-index:-1을 추가하고, active는 z-index:1로 위에 올림.
+       transition을 분리하여 fade-in/out이 교차되도록 함. */
     .detail-photos {
         position:absolute; width:100%; height:100%;
         opacity:0; transition:opacity 0.6s var(--ease); z-index:2;
@@ -189,11 +193,15 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
     .expanded .detail-photos { opacity:1; }
 
     .photo {
-        position:absolute; width:100%; height:100%; opacity:0;
-        transition:opacity 0.8s var(--ease);
+        position:absolute; inset:0; width:100%; height:100%;
+        opacity:0; z-index:0;
+        transition:opacity 0.6s var(--ease), z-index 0s 0.6s;
         background-size:cover; background-repeat:no-repeat; background-position:center;
     }
-    .photo.active { opacity:1; }
+    .photo.active {
+        opacity:1; z-index:1;
+        transition:opacity 0.6s var(--ease), z-index 0s 0s;
+    }
 
     .photo-nav {
         position:absolute; top:50%; transform:translateY(-50%);
@@ -349,12 +357,22 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
         text-transform:uppercase; color:rgba(255,255,255,0.55); text-align:center;
     }
 
+    /* ── [FIX 3] 모바일 썸네일 가운데 정렬 수정 ──
+       아이템 수가 적을 때는 가운데 정렬, 넘칠 때는 스크롤 가능하도록
+       justify-content:center + 스크롤 양쪽 패딩으로 처리 */
     #mob-thumbs {
-        display:flex; gap:6px; flex-wrap:nowrap; width:100%; max-width:100%;
-        overflow-x:auto; overflow-y:visible; overscroll-behavior-x:contain;
-        scrollbar-width:none; -ms-overflow-style:none; padding:2px 2px 4px; box-sizing:border-box;
+        display:flex; gap:6px; flex-wrap:nowrap;
+        width:100%; max-width:100%;
+        overflow-x:auto; overflow-y:visible;
+        overscroll-behavior-x:contain;
+        scrollbar-width:none; -ms-overflow-style:none;
+        padding:2px 2px 4px; box-sizing:border-box;
+        justify-content:center;
     }
     #mob-thumbs::-webkit-scrollbar { display:none; }
+    /* 썸네일이 넘칠 경우 왼쪽 정렬로 자동 전환되도록 min-width 보정 */
+    #mob-thumbs::before,
+    #mob-thumbs::after { content:''; flex:0 0 auto; }
 
     .mob-thumb {
         width:44px; height:30px; border-radius:4px; flex-shrink:0;
@@ -551,7 +569,7 @@ function shrinkProject() {
 }
 
 /* ════════════════════════════════════════════════
-   LANDSCAPE (태블릿) — 구 PC 인터랙션 그대로 유지
+   LANDSCAPE (태블릿) — [FIX 2] 터치 스크롤 추가
 ════════════════════════════════════════════════ */
 (function pcInit() {
     const stage          = document.getElementById('stage');
@@ -649,28 +667,30 @@ function shrinkProject() {
 
     layoutDefault();
 
-    /* ── 드래그 스크롤 ── */
-    stage.addEventListener('mousedown', e => {
-        if (body.classList.contains('is-detail') || isMobile()) return;
+    /* ── 마우스 드래그 스크롤 ── */
+    function startDrag(clientX) {
+        if (body.classList.contains('is-detail') || isMobile()) return false;
         dragActive = true; dragMoved = false;
-        dragStartX = e.clientX; dragStartOff = scrollOffsetX;
-        lastMouseX = e.clientX; velX = 0; overX = 0;
+        dragStartX = clientX; dragStartOff = scrollOffsetX;
+        lastMouseX = clientX; velX = 0; overX = 0;
         if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
         stage.classList.add('is-dragging');
-        e.preventDefault();
-    });
-    window.addEventListener('mousemove', e => {
+        return true;
+    }
+
+    function moveDrag(clientX) {
         if (!dragActive) return;
-        const dx = lastMouseX - e.clientX; lastMouseX = e.clientX; velX = dx;
-        if (Math.abs(e.clientX - dragStartX) > DRAG_THRESHOLD) dragMoved = true;
-        const raw = dragStartOff + (dragStartX - e.clientX);
+        const dx = lastMouseX - clientX; lastMouseX = clientX; velX = dx;
+        if (Math.abs(clientX - dragStartX) > DRAG_THRESHOLD) dragMoved = true;
+        const raw = dragStartOff + (dragStartX - clientX);
         const max = maxOffset();
         if (raw < 0) { scrollOffsetX = 0; overX = Math.max(-MAX_OVER, raw * RESIST); }
         else if (raw > max) { scrollOffsetX = max; overX = Math.min(MAX_OVER, (raw - max) * RESIST); }
         else { scrollOffsetX = raw; overX = 0; }
         applyScroll();
-    });
-    window.addEventListener('mouseup', () => {
+    }
+
+    function endDrag() {
         if (!dragActive) return;
         dragActive = false; stage.classList.remove('is-dragging');
         if (!dragMoved) { overX = 0; return; }
@@ -684,10 +704,46 @@ function shrinkProject() {
             applyScroll();
             if (active) rafId = requestAnimationFrame(loop);
         })();
-    });
+    }
+
+    /* 마우스 이벤트 */
+    stage.addEventListener('mousedown', e => { if (startDrag(e.clientX)) e.preventDefault(); });
+    window.addEventListener('mousemove', e => moveDrag(e.clientX));
+    window.addEventListener('mouseup', endDrag);
     window.addEventListener('mouseleave', () => { if (dragActive) { dragActive = false; stage.classList.remove('is-dragging'); } });
 
-    /* ── 클릭 ── */
+    /* ── [FIX 2] 터치 이벤트 (iPad 스크롤) ── */
+    stage.addEventListener('touchstart', e => {
+        if (body.classList.contains('is-detail')) return;
+        startDrag(e.touches[0].clientX);
+    }, { passive: true });
+
+    stage.addEventListener('touchmove', e => {
+        if (!dragActive) return;
+        moveDrag(e.touches[0].clientX);
+    }, { passive: true });
+
+    stage.addEventListener('touchend', e => {
+        if (!dragActive) return;
+        endDrag();
+        /* 드래그 없이 탭한 경우 클릭 처리 */
+        if (!dragMoved) {
+            const touch = e.changedTouches[0];
+            const el = document.elementFromPoint(touch.clientX, touch.clientY);
+            const strip = el && el.closest('.project-strip');
+            if (strip) {
+                const idx = parseInt(strip.dataset.index);
+                if (strip.classList.contains('expanded')) {
+                    const r = strip.getBoundingClientRect();
+                    rotate(strip, touch.clientX - r.left < r.width / 2 ? -1 : 1);
+                } else {
+                    showProject(idx);
+                }
+            }
+        }
+    });
+
+    /* ── 마우스 클릭 ── */
     strips.forEach(s => s.addEventListener('click', function(e) {
         if (!body.classList.contains('is-started') || isMobile()) return;
         if (dragMoved) return;
