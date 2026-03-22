@@ -92,26 +92,28 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
     opacity:0; transition:opacity 0.4s var(--ease); z-index:8000; pointer-events:none;
 }
 
+.anim-wrap { position:absolute; inset:0; width:100%; height:100%; overflow:hidden; }
+.anim-still, .anim-live {
+    position:absolute; inset:0; width:100%; height:100%;
+    object-fit:cover; display:block; pointer-events:none;
+}
+.anim-live  { opacity:0; transition:opacity 0.25s ease; }
+.anim-still { opacity:1; transition:opacity 0.25s ease; }
+.anim-wrap.playing .anim-live  { opacity:1; }
+.anim-wrap.playing .anim-still { opacity:0; }
+
 .photo-img-wrap {
     position:absolute; width:100%; height:100%; inset:0;
     display:flex; align-items:center; justify-content:center; overflow:hidden;
 }
-.photo-img-wrap img {
-    width:100%; height:100%; object-fit:cover; display:block; pointer-events:none;
-}
+.photo-img-wrap img { width:100%; height:100%; object-fit:cover; display:block; pointer-events:none; }
 
-/* ══════════════════════════════════════
-   LANDSCAPE = 태블릿(PC와 동일한 인터랙션)
-   PORTRAIT  = 모바일
-══════════════════════════════════════ */
-
-/* ── 가로(태블릿) ── */
 @media (orientation: landscape) {
     nav { padding:40px 60px; }
 
     .close-project {
         position:fixed; top:40px; left:60px; z-index:6000; display:none;
-        font-size:12px; letter-spacing:2px; mix-blend-mode:difference; cursor:pointer !important;
+        font-size:12px; letter-spacing:2px; text-transform:uppercase; cursor:pointer !important;
     }
     body.is-detail .close-project { display:block; }
     body.is-detail .logo { opacity:0; pointer-events:none; }
@@ -141,9 +143,7 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
     }
     body:not(.is-started) #stage { filter:blur(20px) scale(1.1); }
     body.is-detail #stage { background-color:rgba(0,0,0,0.7); }
-
-    #stage.is-dragging,
-    #stage.is-dragging * { cursor:grabbing !important; }
+    #stage.is-dragging, #stage.is-dragging * { cursor:grabbing !important; }
 
     .project-strip {
         position:absolute; top:50%; transform:translate(-50%,-50%);
@@ -176,16 +176,6 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
     }
     .project-strip.expanded .strip-img-wrapper { background-color:#000; }
 
-    /* 썸네일 img — still/anim 전환 */
-    .strip-thumb-img {
-        width:100%; height:100%; object-fit:cover;
-        display:block; pointer-events:none; position:absolute; inset:0;
-    }
-
-    /* ── [FIX 1] 사진 전환 튀는 현상 수정 ──
-       .detail-photos 내 .photo 요소들이 겹쳐있을 때 z-index와 transition 타이밍 충돌 방지.
-       inactive → opacity:0 전환에 z-index:-1을 추가하고, active는 z-index:1로 위에 올림.
-       transition을 분리하여 fade-in/out이 교차되도록 함. */
     .detail-photos {
         position:absolute; width:100%; height:100%;
         opacity:0; transition:opacity 0.6s var(--ease); z-index:2;
@@ -198,10 +188,7 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
         transition:opacity 0.6s var(--ease), z-index 0s 0.6s;
         background-size:cover; background-repeat:no-repeat; background-position:center;
     }
-    .photo.active {
-        opacity:1; z-index:1;
-        transition:opacity 0.6s var(--ease), z-index 0s 0s;
-    }
+    .photo.active { opacity:1; z-index:1; transition:opacity 0.6s var(--ease), z-index 0s 0s; }
 
     .photo-nav {
         position:absolute; top:50%; transform:translateY(-50%);
@@ -225,35 +212,36 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
         z-index:4000; opacity:0; transition:opacity 0.8s var(--ease) 0.3s;
     }
     body.is-detail #fixed-expanded-title { opacity:1; }
-    .expanded-title {
-        font-size:16px; font-weight:400; letter-spacing:10px;
-        color:#fff; text-transform:uppercase; line-height:1;
-    }
+    .expanded-title { font-size:16px; font-weight:400; letter-spacing:10px; color:#fff; text-transform:uppercase; line-height:1; }
 
-    /* 모바일 레이아웃 숨김 */
     #mobile-layout { display:none !important; }
 }
 
-/* ── 세로(모바일) ── */
 @media (orientation: portrait) {
-    nav { padding:20px 24px; height:var(--nav-h-mob); }
-    .logo { font-size:12px; letter-spacing:3px; }
+    nav { height:var(--nav-h-mob); padding:0 24px; display:flex; align-items:center; justify-content:space-between; }
+    .logo { font-size:12px; letter-spacing:3px; transition:opacity 0.45s var(--ease), transform 0.45s var(--ease); transform-origin:left center; }
     .contact-trigger { font-size:11px; letter-spacing:2px; }
 
     .close-project {
-        position:fixed; top:20px; left:24px; z-index:6000; display:none;
-        font-size:11px; letter-spacing:2px; line-height:1; padding-bottom:1px;
-        mix-blend-mode:difference; cursor:pointer !important;
+        position:fixed; left:24px; top:0; height:var(--nav-h-mob);
+        display:flex; align-items:center; z-index:6000;
+        font-size:12px; letter-spacing:2px; text-transform:uppercase;
+        opacity:0; pointer-events:none; transition:opacity 0.45s var(--ease); cursor:pointer !important;
     }
-    body.is-detail .close-project { display:block; }
-    body.is-detail .logo { opacity:0; pointer-events:none; }
+    body.is-detail .close-project { opacity:1; pointer-events:auto; }
+    body.is-detail .logo { opacity:0; pointer-events:none; transform:translateX(-6px) scale(0.95); }
     body.is-detail nav { pointer-events:none; }
     body.is-detail .contact-trigger { pointer-events:auto; }
 
-    /* 가로 전용 요소 숨김 */
-    #stage                { display:none !important; }
-    #fixed-expanded-title { display:none !important; }
-    #detail-pagers        { display:none !important; }
+    #mob-detail-nav-border {
+        position:fixed; top:0; left:0; right:0; height:var(--nav-h-mob);
+        background:linear-gradient(to bottom, hsl(0,0%,18%) 0%, hsl(0,0%,18%) 75%, transparent 100%);
+        pointer-events:none; z-index:3800; opacity:0; visibility:hidden;
+        transition:opacity 0.5s var(--ease), visibility 0.5s;
+    }
+    body.is-detail #mob-detail-nav-border { opacity:1; visibility:visible; }
+
+    #stage, #fixed-expanded-title, #detail-pagers { display:none !important; }
 
     #mobile-layout { display:block; width:100vw; height:100vh; position:relative; }
 
@@ -263,37 +251,29 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
         transition:opacity 0.5s var(--ease), visibility 0.5s;
     }
     #mob-grid-wrap::-webkit-scrollbar { display:none; }
-    body.is-detail        #mob-grid-wrap { opacity:0; visibility:hidden; pointer-events:none; }
+    body.is-detail #mob-grid-wrap { opacity:0; visibility:hidden; pointer-events:none; }
     body:not(.is-started) #mob-grid-wrap { filter:blur(16px); }
 
     #mob-nav-border {
         position:fixed; top:0; left:0; right:0; height:var(--nav-h-mob);
         background:linear-gradient(to bottom, hsl(0,0%,18%) 0%, hsl(0,0%,18%) 75%, transparent 100%);
-        pointer-events:none; z-index:3500; transition:opacity 0.4s var(--ease);
+        pointer-events:none; z-index:3500; transition:opacity 0.5s var(--ease);
     }
-    body.is-detail #mob-nav-border { opacity:0; }
+    body.is-detail #mob-nav-border { opacity:0; visibility:hidden; }
 
     #mob-grid { display:flex; flex-direction:column; gap:14px; padding:var(--nav-h-mob) 20px 48px; }
 
     .mob-card {
         position:relative; width:100%; aspect-ratio:16/10;
-        border-radius:var(--radius); overflow:hidden;
-        cursor:pointer !important; opacity:0.72;
+        border-radius:var(--radius); overflow:hidden; cursor:pointer !important; opacity:0.72;
         transition:opacity 0.3s var(--ease), transform 0.3s var(--ease);
     }
     .mob-card:active { opacity:1; transform:scale(0.985); }
-    .mob-card-bg {
-        position:absolute; inset:0; background-size:cover; background-position:center;
-        transition:transform 0.55s var(--ease);
-    }
+    .mob-card-bg { position:absolute; inset:0; background-size:cover; background-position:center; transition:transform 0.55s var(--ease); }
     .mob-card-bg img { width:100%; height:100%; object-fit:cover; display:block; }
     .mob-card:active .mob-card-bg { transform:scale(1.04); }
     .mob-card-overlay { position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 55%); }
-    .mob-card-title {
-        position:absolute; bottom:16px; left:18px;
-        font-size:11px; font-weight:300; letter-spacing:5px;
-        text-transform:uppercase; color:#fff; opacity:0.85;
-    }
+    .mob-card-title { position:absolute; bottom:16px; left:18px; font-size:11px; font-weight:300; letter-spacing:5px; text-transform:uppercase; color:#fff; opacity:0.85; }
 
     #mob-detail {
         position:absolute; inset:0; background:var(--bg); z-index:2000;
@@ -305,21 +285,18 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
     body.is-detail #mob-detail { opacity:1; visibility:visible; pointer-events:auto; }
 
     .mob-peek-card {
-        width:calc(100% - 80px); aspect-ratio:16/9;
-        border-radius:var(--radius); overflow:hidden; flex-shrink:0;
-        position:relative; opacity:0.25; cursor:pointer !important;
+        width:calc(100% - 80px); aspect-ratio:16/9; border-radius:var(--radius);
+        overflow:hidden; flex-shrink:0; position:relative; opacity:0.25; cursor:pointer !important;
         background-size:cover; background-position:center;
         transition:opacity 0.6s var(--ease), transform 0.6s var(--ease);
     }
     .mob-peek-card:active { opacity:0.5; }
     #mob-peek-top    { transform:scale(0.88); transform-origin:bottom center; }
     #mob-peek-bottom { transform:scale(0.88); transform-origin:top center; }
-
     .mob-peek-label {
         position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-        font-size:9px; font-weight:300; letter-spacing:4px;
-        text-transform:uppercase; color:rgba(255,255,255,0.55);
-        background:rgba(0,0,0,0.5); pointer-events:none;
+        font-size:9px; font-weight:300; letter-spacing:4px; text-transform:uppercase;
+        color:rgba(255,255,255,0.55); background:rgba(0,0,0,0.5); pointer-events:none; z-index:2;
     }
 
     #mob-main-block { display:flex; flex-direction:column; align-items:center; gap:14px; width:100%; flex-shrink:0; }
@@ -344,42 +321,29 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
     .mob-tap-hint {
         position:absolute; top:50%; transform:translateY(-50%);
         font-size:28px; font-weight:200; color:rgba(255,255,255,0.2);
-        pointer-events:none; z-index:4;
-        animation:hintFade 3s var(--ease) 0.8s forwards;
+        pointer-events:none; z-index:4; animation:hintFade 3s var(--ease) 0.8s forwards;
     }
     #mob-hint-prev { left:12px; }
     #mob-hint-next { right:12px; }
     @keyframes hintFade { 0%,70%{opacity:1;} 100%{opacity:0;} }
 
     #mob-info-bar { width:calc(100% - 48px); display:flex; flex-direction:column; align-items:center; gap:10px; flex-shrink:0; }
-    #mob-detail-title {
-        font-size:11px; font-weight:300; letter-spacing:8px;
-        text-transform:uppercase; color:rgba(255,255,255,0.55); text-align:center;
-    }
+    #mob-detail-title { font-size:11px; font-weight:300; letter-spacing:8px; text-transform:uppercase; color:rgba(255,255,255,0.55); text-align:center; }
 
-    /* ── [FIX 3] 모바일 썸네일 가운데 정렬 수정 ──
-       아이템 수가 적을 때는 가운데 정렬, 넘칠 때는 스크롤 가능하도록
-       justify-content:center + 스크롤 양쪽 패딩으로 처리 */
     #mob-thumbs {
-        display:flex; gap:6px; flex-wrap:nowrap;
-        width:100%; max-width:100%;
-        overflow-x:auto; overflow-y:visible;
-        overscroll-behavior-x:contain;
+        display:flex; gap:6px; flex-wrap:nowrap; width:100%; max-width:100%;
+        overflow-x:auto; overflow-y:visible; overscroll-behavior-x:contain;
         scrollbar-width:none; -ms-overflow-style:none;
-        padding:2px 2px 4px; box-sizing:border-box;
-        justify-content:center;
+        padding:2px 2px 4px; box-sizing:border-box; justify-content:center;
     }
     #mob-thumbs::-webkit-scrollbar { display:none; }
-    /* 썸네일이 넘칠 경우 왼쪽 정렬로 자동 전환되도록 min-width 보정 */
-    #mob-thumbs::before,
-    #mob-thumbs::after { content:''; flex:0 0 auto; }
 
     .mob-thumb {
         width:44px; height:30px; border-radius:4px; flex-shrink:0;
         background-size:cover; background-position:center; opacity:0.3;
         border:1px solid rgba(255,255,255,0.1); overflow:hidden;
         transition:opacity 0.3s var(--ease), border-color 0.3s, transform 0.3s var(--ease);
-        cursor:pointer !important;
+        cursor:pointer !important; position:relative;
     }
     .mob-thumb img { width:100%; height:100%; object-fit:cover; display:block; pointer-events:none; }
     .mob-thumb.active { opacity:1; border-color:#fff; transform:scale(1.1); }
@@ -414,12 +378,12 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
 
 <div id="toast">EMAIL COPIED</div>
 
-<!-- 가로(태블릿) — PC와 동일한 스트립 인터랙션 -->
 <div id="detail-pagers"></div>
 <div id="fixed-expanded-title"><div class="expanded-title"></div></div>
 <div id="stage"></div>
 
-<!-- 세로(모바일) -->
+<div id="mob-detail-nav-border"></div>
+
 <div id="mobile-layout">
     <div id="mob-nav-border"></div>
     <div id="mob-grid-wrap"><div id="mob-grid"></div></div>
@@ -445,111 +409,138 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
     </div>
 </div>
 
-
 <script>
-/* ═══════════════════════════════════════
-   DATA
-═══════════════════════════════════════ */
 const TITLES = ['LUGIA','B-Project','C-Project','D-Project','E-Project',
                 'F-Project','G-Project','H-Project','I-Project','J-Project'];
 const LABELS = ['a','b','c','d','e','f','g','h','i','j'];
 
 const IMAGES = TITLES.map((_, i) => {
     const lbl = LABELS[i];
-    const len = (i === 0) ? 7 : 10;
     if (i === 0) {
-        return Array.from({length: len}, (_, p) =>
-            p === 0
-                ? `assets/project-${lbl}/${lbl} (1).webp`
-                : `assets/project-${lbl}/${lbl} (${p+1}).png`
+        return Array.from({length:7}, (_, p) =>
+            p === 0 ? `assets/project-${lbl}/${lbl} (1).webp`
+                    : `assets/project-${lbl}/${lbl} (${p+1}).png`
         );
     }
-    return Array.from({length: len}, (_, p) =>
+    return Array.from({length:10}, (_, p) =>
         `https://picsum.photos/seed/proj-${i}-${p}/1600/900`
     );
 });
 
-function isAnimated(projIdx, photoIdx) {
-    return projIdx === 0 && photoIdx === 0;
-}
+function isAnimated(projIdx, photoIdx) { return projIdx === 0 && photoIdx === 0; }
 
-/* ─────────────────────────────────────
-   animated webp 첫 프레임 Canvas 추출
-───────────────────────────────────── */
+const STILL_CACHE = {};
+
 function extractFirstFrame(url) {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
         const img = new Image();
         img.crossOrigin = 'anonymous';
         img.onload = () => {
             try {
                 const c = document.createElement('canvas');
-                c.width  = img.naturalWidth  || 1600;
+                c.width = img.naturalWidth || 1600;
                 c.height = img.naturalHeight || 900;
                 c.getContext('2d').drawImage(img, 0, 0);
                 resolve(c.toDataURL('image/png'));
-            } catch(e) { resolve(url); }
+            } catch(e) { resolve(null); }
         };
-        img.onerror = () => resolve(url);
+        img.onerror = () => resolve(null);
         img.src = url;
     });
 }
 
-const STILL_CACHE = {};
+function makeAnimWrap(projIdx, extraStyle) {
+    const animUrl = IMAGES[projIdx][0];
+    const stillSrc = STILL_CACHE[projIdx] || animUrl;
+    const div = document.createElement('div');
+    div.className = 'anim-wrap';
+    if (extraStyle) div.style.cssText = extraStyle;
+    div.dataset.proj = projIdx;
+    div.innerHTML = `
+        <img class="anim-still" src="${stillSrc}" alt="" draggable="false">
+        <img class="anim-live"  src=""            alt="" draggable="false" data-anim="${animUrl}">`;
+    return div;
+}
+
+function animPlay(wrap) {
+    if (!wrap || wrap.classList.contains('playing')) return;
+    const live = wrap.querySelector('.anim-live');
+    if (live && !live.src) live.src = live.dataset.anim;
+    wrap.classList.add('playing');
+}
+
+function animStop(wrap) {
+    if (!wrap) return;
+    wrap.classList.remove('playing');
+    const live = wrap.querySelector('.anim-live');
+    if (live) live.src = '';
+}
+
+function updateStills(projIdx, dataUrl) {
+    document.querySelectorAll(`.anim-wrap[data-proj="${projIdx}"]`).forEach(wrap => {
+        const still = wrap.querySelector('.anim-still');
+        if (still && !wrap.classList.contains('playing')) still.src = dataUrl;
+    });
+}
 
 (function preloadStills() {
     TITLES.forEach((_, i) => {
         if (!isAnimated(i, 0)) return;
         extractFirstFrame(IMAGES[i][0]).then(dataUrl => {
+            if (!dataUrl) return;
             STILL_CACHE[i] = dataUrl;
-            /* 이미 렌더된 썸네일 즉시 교체 */
-            document.querySelectorAll(`img[data-proj="${i}"][data-type="thumb"]`).forEach(el => {
-                el.dataset.still = dataUrl;
-                if (el.src !== el.dataset.anim) el.src = dataUrl;
-            });
-            /* strip-thumb-img 도 교체 */
-            document.querySelectorAll(`.strip-thumb-img`).forEach(el => {
-                if (el.dataset.proj === String(i)) {
-                    el.dataset.still = dataUrl;
-                    if (el.src !== el.dataset.anim) el.src = dataUrl;
-                }
-            });
+            updateStills(i, dataUrl);
         });
     });
 })();
 
-function makePhotoEl(url, projIdx, photoIdx, extraClass) {
-    const cls = `photo${extraClass ? ' ' + extraClass : ''}`;
+function makePhotoEl(projIdx, photoIdx, extraClass) {
+    const url = IMAGES[projIdx][photoIdx];
+    const cls = `photo${extraClass ? ' '+extraClass : ''}`;
     if (isAnimated(projIdx, photoIdx)) {
-        return `<div class="${cls}" data-animated="true">
-                    <div class="photo-img-wrap">
-                        <img src="${url}" alt="" loading="lazy">
-                    </div>
-                </div>`;
+        const div = document.createElement('div');
+        div.className = cls;
+        div.dataset.animated = 'true';
+        div.appendChild(makeAnimWrap(projIdx, 'position:absolute;inset:0;'));
+        return div;
     }
     return `<div class="${cls}" style="background-image:url('${url}')"></div>`;
 }
 
-function makeThumbBg(url, projIdx, photoIdx) {
-    if (isAnimated(projIdx, photoIdx)) return `<img src="${url}" alt="" loading="lazy">`;
-    return '';
+function makeThumbEl(projIdx, photoIdx, activeClass, onclick) {
+    const url = IMAGES[projIdx][photoIdx];
+    const div = document.createElement('div');
+    div.className = `mob-thumb${activeClass ? ' '+activeClass : ''}`;
+    div.onclick = onclick;
+    if (isAnimated(projIdx, photoIdx)) {
+        div.appendChild(makeAnimWrap(projIdx, 'position:absolute;inset:0;'));
+    } else {
+        div.style.backgroundImage = `url('${url}')`;
+    }
+    return div;
 }
-function makeThumbStyle(url, projIdx, photoIdx) {
-    if (isAnimated(projIdx, photoIdx)) return '';
-    return `background-image:url('${url}')`;
+
+function makePagerEl(projIdx, photoIdx, activeClass, onclick) {
+    const url = IMAGES[projIdx][photoIdx];
+    const div = document.createElement('div');
+    div.className = `pager-item${activeClass ? ' '+activeClass : ''}`;
+    div.onclick = onclick;
+    if (isAnimated(projIdx, photoIdx)) {
+        div.appendChild(makeAnimWrap(projIdx, 'position:absolute;inset:0;'));
+    } else {
+        div.style.backgroundImage = `url('${url}')`;
+    }
+    return div;
 }
 
 const body        = document.body;
 const isLandscape = () => window.innerWidth > window.innerHeight;
-const isMobile    = () => !isLandscape();   /* portrait = 모바일 */
+const isMobile    = () => !isLandscape();
 
-/* orientation 전환 시 detail 해제 */
 window.addEventListener('resize', () => {
     if (body.classList.contains('is-detail')) body.classList.remove('is-detail');
 });
 
-/* ═══════════════════════════════════════
-   SHARED
-═══════════════════════════════════════ */
 function handleIntroClick() {
     if (!body.classList.contains('is-started')) body.classList.add('is-started');
 }
@@ -564,140 +555,141 @@ function copyEmail(email) {
     });
 }
 function shrinkProject() {
-    if (isMobile()) mobShrink();
-    else            pcShrink();
+    if (isMobile()) mobShrink(); else pcShrink();
 }
 
-/* ════════════════════════════════════════════════
-   LANDSCAPE (태블릿) — [FIX 2] 터치 스크롤 추가
-════════════════════════════════════════════════ */
 (function pcInit() {
     const stage          = document.getElementById('stage');
     const pagerContainer = document.getElementById('detail-pagers');
     const expandedTitle  = document.querySelector('.expanded-title');
-    let currentIndex     = -1;
+    let currentIndex = -1;
 
     const STRIP_W   = 195;
     const STRIP_GAP = 215;
 
-    let scrollOffsetX = 0;
-    let overX         = 0;
-    let velX          = 0;
-    let dragActive    = false;
-    let dragStartX    = 0;
-    let dragStartOff  = 0;
-    let dragMoved     = false;
-    let lastMouseX    = 0;
-    let rafId         = null;
+    let scrollOffsetX = 0, overX = 0, velX = 0;
+    let dragActive = false, dragStartX = 0, dragStartOff = 0;
+    let dragMoved = false, lastPointerX = 0, rafId = null, isTouchDrag = false;
 
-    const FRICTION       = 0.88;
-    const SPRING_STIFF   = 0.16;
-    const SPRING_DAMP    = 0.68;
-    const MAX_OVER       = 110;
-    const RESIST         = 0.26;
-    const DRAG_THRESHOLD = 4;
+    const FRICTION = 0.88, SPRING_STIFF = 0.16, SPRING_DAMP = 0.68;
+    const MAX_OVER = 110, RESIST = 0.26, DRAG_THRESHOLD = 6;
 
     function maxOffset() {
-        const totalW = TITLES.length * STRIP_GAP;
-        const vp     = window.innerWidth;
-        return Math.max(0, (totalW - vp) / 2 + STRIP_W / 2 + 50);
+        const totalW = (TITLES.length - 1) * STRIP_GAP + STRIP_W;
+        return Math.max(0, (totalW + STRIP_W + 80 - window.innerWidth) / 2);
     }
     function baseLeft(i) {
-        const half = (TITLES.length - 1) / 2;
-        return window.innerWidth / 2 + (i - half) * STRIP_GAP;
+        return window.innerWidth / 2 + (i - (TITLES.length - 1) / 2) * STRIP_GAP;
     }
     function applyScroll() {
         if (body.classList.contains('is-detail')) return;
         strips.forEach((s, i) => {
             if (s.classList.contains('expanded') || s.classList.contains('peek')) return;
-            const prev = s.style.transition;
             s.style.transition = 'none';
             s.style.left = `${baseLeft(i) - (scrollOffsetX + overX)}px`;
-            requestAnimationFrame(() => { s.style.transition = prev; });
         });
     }
 
-    /* 썸네일: animated webp → 정지 프레임 기본, hover 시 webp */
-    function makeStripThumbBg(projIdx) {
-        if (isAnimated(projIdx, 0)) {
-            const stillUrl = STILL_CACHE[projIdx] || IMAGES[projIdx][0];
-            const animUrl  = IMAGES[projIdx][0];
-            return `<img class="strip-thumb-img"
-                         src="${stillUrl}"
-                         data-still="${stillUrl}"
-                         data-anim="${animUrl}"
-                         data-proj="${projIdx}"
-                         alt=""
-                         style="width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;position:absolute;inset:0;">`;
-        }
-        return '';
-    }
-    function makeStripThumbStyle(projIdx) {
-        if (isAnimated(projIdx, 0)) return '';
-        return `background-image:url('${IMAGES[projIdx][0]}')`;
-    }
+    stage.innerHTML = '';
+    TITLES.forEach((t, i) => {
+        const strip = document.createElement('div');
+        strip.className = `project-strip strip-${i}`;
+        strip.dataset.index = i;
 
-    stage.innerHTML = TITLES.map((t, i) => `
-        <div class="project-strip strip-${i}" data-index="${i}">
-            <div class="thumb-title">${t}</div>
-            <div class="strip-img-wrapper" style="${makeStripThumbStyle(i)}">
-                ${makeStripThumbBg(i)}
-                <div class="photo-nav photo-nav-prev" onclick="event.stopPropagation();pcNav(${i},-1)">&#10216;</div>
-                <div class="photo-nav photo-nav-next" onclick="event.stopPropagation();pcNav(${i},1)">&#10217;</div>
-                <div class="detail-photos">
-                    ${IMAGES[i].map((url, p) => makePhotoEl(url, i, p, p===0?'active':'')).join('')}
-                </div>
-            </div>
-        </div>`).join('');
+        const titleEl = document.createElement('div');
+        titleEl.className = 'thumb-title';
+        titleEl.textContent = t;
+        strip.appendChild(titleEl);
 
-    const strips = document.querySelectorAll('.project-strip');
+        const wrapper = document.createElement('div');
+        wrapper.className = 'strip-img-wrapper';
+        if (!isAnimated(i, 0)) wrapper.style.backgroundImage = `url('${IMAGES[i][0]}')`;
+        strip.appendChild(wrapper);
 
-    /* hover → webp 재생 / leave → 정지 프레임 */
-    strips.forEach(s => {
-        const img = s.querySelector('img.strip-thumb-img');
-        if (!img) return;
-        s.addEventListener('mouseenter', () => {
-            if (body.classList.contains('is-detail')) return;
-            img.src = img.dataset.anim;
+        if (isAnimated(i, 0)) wrapper.appendChild(makeAnimWrap(i, 'position:absolute;inset:0;z-index:0;'));
+
+        const navPrev = document.createElement('div');
+        navPrev.className = 'photo-nav photo-nav-prev';
+        navPrev.innerHTML = '&#10216;';
+        navPrev.onclick = e => { e.stopPropagation(); pcNav(i, -1); };
+        wrapper.appendChild(navPrev);
+
+        const navNext = document.createElement('div');
+        navNext.className = 'photo-nav photo-nav-next';
+        navNext.innerHTML = '&#10217;';
+        navNext.onclick = e => { e.stopPropagation(); pcNav(i, 1); };
+        wrapper.appendChild(navNext);
+
+        const detailPhotos = document.createElement('div');
+        detailPhotos.className = 'detail-photos';
+        IMAGES[i].forEach((url, p) => {
+            const el = makePhotoEl(i, p, p === 0 ? 'active' : '');
+            if (typeof el === 'string') detailPhotos.insertAdjacentHTML('beforeend', el);
+            else detailPhotos.appendChild(el);
         });
-        s.addEventListener('mouseleave', () => {
-            img.src = img.dataset.still;
-        });
+        wrapper.appendChild(detailPhotos);
+
+        stage.appendChild(strip);
     });
 
+    const strips = document.querySelectorAll('.project-strip');
     layoutDefault();
 
-    /* ── 마우스 드래그 스크롤 ── */
-    function startDrag(clientX) {
-        if (body.classList.contains('is-detail') || isMobile()) return false;
+    function startDrag(clientX, isTouch) {
+        if (body.classList.contains('is-detail')) return false;
+        isTouchDrag = isTouch;
         dragActive = true; dragMoved = false;
         dragStartX = clientX; dragStartOff = scrollOffsetX;
-        lastMouseX = clientX; velX = 0; overX = 0;
+        lastPointerX = clientX; velX = 0; overX = 0;
         if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-        stage.classList.add('is-dragging');
+        if (!isTouch) stage.classList.add('is-dragging');
         return true;
     }
 
     function moveDrag(clientX) {
         if (!dragActive) return;
-        const dx = lastMouseX - clientX; lastMouseX = clientX; velX = dx;
+        velX = lastPointerX - clientX;
+        lastPointerX = clientX;
         if (Math.abs(clientX - dragStartX) > DRAG_THRESHOLD) dragMoved = true;
         const raw = dragStartOff + (dragStartX - clientX);
         const max = maxOffset();
-        if (raw < 0) { scrollOffsetX = 0; overX = Math.max(-MAX_OVER, raw * RESIST); }
-        else if (raw > max) { scrollOffsetX = max; overX = Math.min(MAX_OVER, (raw - max) * RESIST); }
-        else { scrollOffsetX = raw; overX = 0; }
+        if      (raw < 0)   { scrollOffsetX = 0;   overX = Math.max(-MAX_OVER, raw * RESIST); }
+        else if (raw > max) { scrollOffsetX = max;  overX = Math.min(MAX_OVER, (raw - max) * RESIST); }
+        else                { scrollOffsetX = raw;  overX = 0; }
         applyScroll();
     }
 
-    function endDrag() {
+    function endDrag(tapX, tapY) {
         if (!dragActive) return;
-        dragActive = false; stage.classList.remove('is-dragging');
-        if (!dragMoved) { overX = 0; return; }
+        const wasMoved = dragMoved;
+        dragActive = false;
+        if (!isTouchDrag) stage.classList.remove('is-dragging');
+
+        if (!wasMoved) {
+            overX = 0;
+            if (tapX !== undefined) {
+                const el = document.elementFromPoint(tapX, tapY);
+                const strip = el && el.closest('.project-strip');
+                if (strip) {
+                    const idx = parseInt(strip.dataset.index);
+                    if (strip.classList.contains('expanded')) {
+                        const r = strip.getBoundingClientRect();
+                        rotate(strip, tapX - r.left < r.width / 2 ? -1 : 1);
+                    } else {
+                        showProject(idx);
+                    }
+                }
+            }
+            return;
+        }
+
         (function loop() {
             let active = false;
             const max = maxOffset();
-            if (Math.abs(velX) > 0.25) { scrollOffsetX = Math.max(0, Math.min(max, scrollOffsetX + velX)); velX *= FRICTION; active = true; } else velX = 0;
+            if (Math.abs(velX) > 0.25) {
+                scrollOffsetX = Math.max(0, Math.min(max, scrollOffsetX + velX));
+                velX *= FRICTION; active = true;
+            } else velX = 0;
             if (scrollOffsetX < 0) { overX += -scrollOffsetX * RESIST; scrollOffsetX = 0; velX *= -0.25; active = true; }
             else if (scrollOffsetX > max) { overX += (scrollOffsetX - max) * RESIST; scrollOffsetX = max; velX *= -0.25; active = true; }
             if (Math.abs(overX) > 0.15) { overX -= overX * SPRING_STIFF * 5; overX *= SPRING_DAMP; active = true; } else overX = 0;
@@ -706,47 +698,17 @@ function shrinkProject() {
         })();
     }
 
-    /* 마우스 이벤트 */
-    stage.addEventListener('mousedown', e => { if (startDrag(e.clientX)) e.preventDefault(); });
-    window.addEventListener('mousemove', e => moveDrag(e.clientX));
-    window.addEventListener('mouseup', endDrag);
-    window.addEventListener('mouseleave', () => { if (dragActive) { dragActive = false; stage.classList.remove('is-dragging'); } });
+    stage.addEventListener('mousedown', e => { if (isMobile()) return; if (startDrag(e.clientX, false)) e.preventDefault(); });
+    window.addEventListener('mousemove', e => { if (!isTouchDrag) moveDrag(e.clientX); });
+    window.addEventListener('mouseup',   () => { if (!isTouchDrag) endDrag(); });
+    window.addEventListener('mouseleave', () => { if (dragActive && !isTouchDrag) { dragActive = false; stage.classList.remove('is-dragging'); } });
 
-    /* ── [FIX 2] 터치 이벤트 (iPad 스크롤) ── */
-    stage.addEventListener('touchstart', e => {
-        if (body.classList.contains('is-detail')) return;
-        startDrag(e.touches[0].clientX);
-    }, { passive: true });
+    stage.addEventListener('touchstart', e => { if (!body.classList.contains('is-detail')) startDrag(e.touches[0].clientX, true); }, { passive:true });
+    stage.addEventListener('touchmove',  e => { if (dragActive && isTouchDrag) moveDrag(e.touches[0].clientX); }, { passive:true });
+    stage.addEventListener('touchend',   e => { if (dragActive && isTouchDrag) { const t = e.changedTouches[0]; endDrag(t.clientX, t.clientY); } });
 
-    stage.addEventListener('touchmove', e => {
-        if (!dragActive) return;
-        moveDrag(e.touches[0].clientX);
-    }, { passive: true });
-
-    stage.addEventListener('touchend', e => {
-        if (!dragActive) return;
-        endDrag();
-        /* 드래그 없이 탭한 경우 클릭 처리 */
-        if (!dragMoved) {
-            const touch = e.changedTouches[0];
-            const el = document.elementFromPoint(touch.clientX, touch.clientY);
-            const strip = el && el.closest('.project-strip');
-            if (strip) {
-                const idx = parseInt(strip.dataset.index);
-                if (strip.classList.contains('expanded')) {
-                    const r = strip.getBoundingClientRect();
-                    rotate(strip, touch.clientX - r.left < r.width / 2 ? -1 : 1);
-                } else {
-                    showProject(idx);
-                }
-            }
-        }
-    });
-
-    /* ── 마우스 클릭 ── */
     strips.forEach(s => s.addEventListener('click', function(e) {
-        if (!body.classList.contains('is-started') || isMobile()) return;
-        if (dragMoved) return;
+        if (!body.classList.contains('is-started') || isMobile() || isTouchDrag || dragMoved) return;
         const idx = parseInt(this.dataset.index);
         if (this.classList.contains('expanded')) {
             const r = this.getBoundingClientRect();
@@ -798,14 +760,20 @@ function shrinkProject() {
         currentIndex = index;
         if (expandedTitle) expandedTitle.innerText = TITLES[index];
         if (entering) body.classList.add('is-detail');
-        strips[index].querySelectorAll('.photo').forEach((p,i) => p.classList.toggle('active', i===0));
 
-        pagerContainer.innerHTML = IMAGES[index].map((url, pIdx) => {
-            const ts = makeThumbStyle(url, index, pIdx);
-            const ti = makeThumbBg(url, index, pIdx);
-            return `<div class="pager-item ${pIdx===0?'active':''}" style="${ts}"
-                         onclick="event.stopPropagation();pcJump(${index},${pIdx})">${ti}</div>`;
-        }).join('');
+        strips[index].querySelectorAll('.strip-img-wrapper > .anim-wrap').forEach(animStop);
+        strips[index].querySelectorAll('.photo').forEach((p,i) => {
+            p.classList.toggle('active', i===0);
+            const aw = p.querySelector('.anim-wrap');
+            if (aw) { if (i===0) animPlay(aw); else animStop(aw); }
+        });
+
+        pagerContainer.innerHTML = '';
+        IMAGES[index].forEach((url, pIdx) => {
+            pagerContainer.appendChild(
+                makePagerEl(index, pIdx, pIdx===0?'active':'', e => { e.stopPropagation(); pcJump(index, pIdx); })
+            );
+        });
 
         if (entering) {
             strips.forEach((s, i) => {
@@ -823,10 +791,16 @@ function shrinkProject() {
         } else { layoutDetail(); }
     }
 
-    window.pcNav  = (idx, dir) => rotate(strips[idx], dir);
+    window.pcNav = (idx, dir) => rotate(strips[idx], dir);
     window.pcJump = (projIdx, photoIdx) => {
-        strips[projIdx].querySelectorAll('.photo').forEach((p,i)=>p.classList.toggle('active',i===photoIdx));
-        pagerContainer.querySelectorAll('.pager-item').forEach((pg,i)=>pg.classList.toggle('active',i===photoIdx));
+        const photos = strips[projIdx].querySelectorAll('.photo');
+        const pagers = pagerContainer.querySelectorAll('.pager-item');
+        photos.forEach((p,i) => {
+            p.classList.toggle('active', i===photoIdx);
+            const aw = p.querySelector('.anim-wrap');
+            if (aw) { if (i===photoIdx) animPlay(aw); else animStop(aw); }
+        });
+        pagers.forEach((pg,i) => pg.classList.toggle('active', i===photoIdx));
     };
 
     function rotate(strip, dir) {
@@ -834,14 +808,22 @@ function shrinkProject() {
         const pagers = pagerContainer.querySelectorAll('.pager-item');
         if (!pagers.length) return;
         let idx = Array.from(photos).findIndex(p => p.classList.contains('active'));
-        photos[idx].classList.remove('active'); if(pagers[idx]) pagers[idx].classList.remove('active');
+        const aw0 = photos[idx].querySelector('.anim-wrap');
+        if (aw0) animStop(aw0);
+        photos[idx].classList.remove('active');
+        if (pagers[idx]) pagers[idx].classList.remove('active');
         idx = (idx + dir + photos.length) % photos.length;
-        photos[idx].classList.add('active'); if(pagers[idx]) pagers[idx].classList.add('active');
+        photos[idx].classList.add('active');
+        if (pagers[idx]) pagers[idx].classList.add('active');
+        const aw1 = photos[idx].querySelector('.anim-wrap');
+        if (aw1) animPlay(aw1);
     }
 
     window.pcShrink = function() {
         body.classList.remove('is-detail');
         const old = currentIndex; currentIndex = -1;
+
+        strips[old].querySelectorAll('.anim-wrap').forEach(animStop);
         strips[old].style.transition='';
         strips[old].style.left=`${baseLeft(old)-scrollOffsetX}px`;
         strips[old].style.width=`${STRIP_W}px`; strips[old].style.height='var(--strip-height)';
@@ -860,23 +842,24 @@ function shrinkProject() {
             s.classList.remove('expanded','peek'); others.push(s);
         });
         for(let i=others.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[others[i],others[j]]=[others[j],others[i]];}
-        requestAnimationFrame(()=>{ requestAnimationFrame(()=>{
-            others.forEach((s, idx)=>{
-                const delay=(idx*(1.0/(others.length-1))).toFixed(2);
+        requestAnimationFrame(()=>requestAnimationFrame(()=>{
+            others.forEach((s, oi) => {
+                const delay = (oi*(1.0/(others.length-1))).toFixed(2);
                 s.style.transition=`top 0.5s var(--ease) ${delay}s, opacity 0.5s var(--ease) ${delay}s`;
                 s.style.top='50%'; s.style.opacity='0.4'; s.style.pointerEvents='auto';
-                setTimeout(()=>{ s.style.transition=''; },(parseFloat(delay)+0.5)*1000+100);
+                setTimeout(()=>{ s.style.transition=''; }, (parseFloat(delay)+0.5)*1000+100);
             });
-        }); });
+        }));
+
         pagerContainer.innerHTML='';
-        document.querySelectorAll('.photo').forEach(p=>p.classList.toggle('active',p===p.parentElement.querySelector('.photo')));
+        document.querySelectorAll('.photo').forEach(p => {
+            p.classList.toggle('active', p === p.parentElement.querySelector('.photo'));
+            const aw = p.querySelector('.anim-wrap');
+            if (aw) animStop(aw);
+        });
     };
 })();
 
-
-/* ═══════════════════════════════════════
-   PORTRAIT (모바일)
-═══════════════════════════════════════ */
 (function mobInit() {
     const grid       = document.getElementById('mob-grid');
     const viewer     = document.getElementById('mob-viewer');
@@ -895,12 +878,28 @@ function shrinkProject() {
     TITLES.forEach((t, i) => {
         const card = document.createElement('div');
         card.className = 'mob-card';
-        const url0 = IMAGES[i][0];
-        const bgHtml = isAnimated(i, 0)
-            ? `<div class="mob-card-bg"><img src="${url0}" alt=""></div>`
-            : `<div class="mob-card-bg" style="background-image:url('${url0}')"></div>`;
-        card.innerHTML = `${bgHtml}<div class="mob-card-overlay"></div><div class="mob-card-title">${t}</div>`;
-        card.addEventListener('click', () => { if(!body.classList.contains('is-started')||!isMobile())return; showProject(i); });
+
+        const bgDiv = document.createElement('div');
+        bgDiv.className = 'mob-card-bg';
+        if (isAnimated(i, 0)) {
+            bgDiv.appendChild(makeAnimWrap(i, 'position:absolute;inset:0;'));
+        } else {
+            bgDiv.style.backgroundImage = `url('${IMAGES[i][0]}')`;
+        }
+
+        const overlay = document.createElement('div');
+        overlay.className = 'mob-card-overlay';
+        const titleDiv = document.createElement('div');
+        titleDiv.className = 'mob-card-title';
+        titleDiv.textContent = t;
+
+        card.appendChild(bgDiv);
+        card.appendChild(overlay);
+        card.appendChild(titleDiv);
+        card.addEventListener('click', () => {
+            if (!body.classList.contains('is-started') || !isMobile()) return;
+            showProject(i);
+        });
         grid.appendChild(card);
     });
 
@@ -908,52 +907,80 @@ function shrinkProject() {
     tapNext.addEventListener('click', () => rotatePhoto(1));
 
     function setPeekBg(el, projIdx) {
-        const url = IMAGES[projIdx][0];
+        el.querySelectorAll('.anim-wrap').forEach(w => w.remove());
         if (isAnimated(projIdx, 0)) {
-            el.style.backgroundImage = '';
-            let img = el.querySelector('img.peek-img');
-            if (!img) { img=document.createElement('img'); img.className='peek-img'; img.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;'; el.insertBefore(img,el.firstChild); }
-            img.src = url;
+            const aw = makeAnimWrap(projIdx, 'position:absolute;inset:0;z-index:0;');
+            el.insertBefore(aw, el.firstChild);
+            animStop(aw);
         } else {
-            el.style.backgroundImage = `url('${url}')`;
-            const img = el.querySelector('img.peek-img'); if(img) img.remove();
+            el.style.backgroundImage = `url('${IMAGES[projIdx][0]}')`;
         }
     }
+
     function updatePeek(index) {
-        const n=TITLES.length,prev=(index-1+n)%n,next=(index+1)%n;
-        setPeekBg(peekTop,prev); setPeekBg(peekBot,next);
+        const n=TITLES.length, prev=(index-1+n)%n, next=(index+1)%n;
+        setPeekBg(peekTop, prev); setPeekBg(peekBot, next);
         peekTopLbl.textContent=TITLES[prev]; peekBotLbl.textContent=TITLES[next];
     }
+
     function loadContent(index) {
-        titleEl.textContent=TITLES[index];
-        viewer.querySelectorAll('.mob-slide').forEach(el=>el.remove());
-        IMAGES[index].forEach((url,p)=>{
-            const s=document.createElement('div');
-            s.className='mob-slide'+(p===0?' active':'');
-            if(isAnimated(index,p)){const img=document.createElement('img');img.src=url;img.alt='';s.appendChild(img);}
-            else s.style.backgroundImage=`url('${url}')`;
-            viewer.insertBefore(s,tapPrev);
+        titleEl.textContent = TITLES[index];
+
+        viewer.querySelectorAll('.mob-slide').forEach(el => el.remove());
+        IMAGES[index].forEach((url, p) => {
+            const s = document.createElement('div');
+            s.className = 'mob-slide' + (p===0 ? ' active' : '');
+            if (isAnimated(index, p)) {
+                const aw = makeAnimWrap(index, 'position:absolute;inset:0;');
+                s.appendChild(aw);
+                if (p === 0) animPlay(aw); else animStop(aw);
+            } else {
+                s.style.backgroundImage = `url('${url}')`;
+            }
+            viewer.insertBefore(s, tapPrev);
         });
-        thumbsEl.innerHTML=IMAGES[index].map((url,p)=>{
-            const style=makeThumbStyle(url,index,p),inner=makeThumbBg(url,index,p);
-            return `<div class="mob-thumb ${p===0?'active':''}" style="${style}" onclick="event.stopPropagation();mobJumpPhoto(${p})">${inner}</div>`;
-        }).join('');
+
+        thumbsEl.innerHTML = '';
+        IMAGES[index].forEach((url, p) => {
+            thumbsEl.appendChild(
+                makeThumbEl(index, p, p===0?'active':'', e => { e.stopPropagation(); mobJumpPhoto(p); })
+            );
+        });
+
         updatePeek(index);
     }
-    function showProject(index){curProject=index;curPhoto=0;body.classList.add('is-detail');loadContent(index);}
-    window.mobJumpPhoto=function(pi){
-        viewer.querySelectorAll('.mob-slide').forEach((s,i)=>s.classList.toggle('active',i===pi));
-        thumbsEl.querySelectorAll('.mob-thumb').forEach((t,i)=>t.classList.toggle('active',i===pi));
+
+    function showProject(index) {
+        curProject=index; curPhoto=0;
+        body.classList.add('is-detail');
+        loadContent(index);
+    }
+
+    window.mobJumpPhoto = function(pi) {
+        const slides = viewer.querySelectorAll('.mob-slide');
+        const thumbs = thumbsEl.querySelectorAll('.mob-thumb');
+        slides.forEach((s,i) => {
+            s.classList.toggle('active', i===pi);
+            const aw = s.querySelector('.anim-wrap');
+            if (aw) { if (i===pi) animPlay(aw); else animStop(aw); }
+        });
+        thumbs.forEach((t,i) => t.classList.toggle('active', i===pi));
         curPhoto=pi;
     };
-    function rotatePhoto(dir){const c=viewer.querySelectorAll('.mob-slide').length;mobJumpPhoto((curPhoto+dir+c)%c);}
-    window.mobSwitchProject=function(dir){
-        if(switching)return;switching=true;
-        const ni=(curProject+dir+TITLES.length)%TITLES.length,outY=dir>0?'-55px':'55px';
+
+    function rotatePhoto(dir) {
+        const c = viewer.querySelectorAll('.mob-slide').length;
+        mobJumpPhoto((curPhoto+dir+c)%c);
+    }
+
+    window.mobSwitchProject = function(dir) {
+        if (switching) return; switching=true;
+        const ni=(curProject+dir+TITLES.length)%TITLES.length, outY=dir>0?'-55px':'55px';
         ss(mainBlock,{transition:`transform ${DUR}ms ${EASE},opacity ${Math.round(DUR*.65)}ms ${EASE}`,transform:`translateY(${outY})`,opacity:'0'});
         [peekTop,peekBot].forEach(pk=>ss(pk,{transition:`transform ${DUR}ms ${EASE},opacity ${Math.round(DUR*.55)}ms ${EASE}`,transform:`scale(0.88) translateY(${dir>0?'-18px':'18px'})`,opacity:'0'}));
         setTimeout(()=>{
-            curProject=ni;curPhoto=0;loadContent(ni);
+            curProject=ni; curPhoto=0;
+            loadContent(ni);
             const inY=dir>0?'55px':'-55px';
             ss(mainBlock,{transition:'none',transform:`translateY(${inY})`,opacity:'0'});
             [peekTop,peekBot].forEach(pk=>ss(pk,{transition:'none',transform:`scale(0.88) translateY(${dir>0?'18px':'-18px'})`,opacity:'0'}));
@@ -964,7 +991,15 @@ function shrinkProject() {
             }));
         },DUR*.42);
     };
-    window.mobShrink=function(){body.classList.remove('is-detail');curProject=-1;cs(mainBlock);cs(peekTop);cs(peekBot);switching=false;};
+
+    window.mobShrink = function() {
+        body.classList.remove('is-detail');
+        curProject=-1;
+        cs(mainBlock); cs(peekTop); cs(peekBot);
+        switching=false;
+        document.querySelectorAll('#mob-detail .anim-wrap').forEach(animStop);
+    };
+
     function ss(el,p){Object.assign(el.style,p);}
     function cs(el){el.style.transition='';el.style.transform='';el.style.opacity='';}
 })();
