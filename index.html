@@ -92,8 +92,21 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
     opacity:0; transition:opacity 0.4s var(--ease); z-index:8000; pointer-events:none;
 }
 
-/* ── PC ── */
-@media (min-width: 1025px) {
+.photo-img-wrap {
+    position:absolute; width:100%; height:100%; inset:0;
+    display:flex; align-items:center; justify-content:center; overflow:hidden;
+}
+.photo-img-wrap img {
+    width:100%; height:100%; object-fit:cover; display:block; pointer-events:none;
+}
+
+/* ══════════════════════════════════════
+   LANDSCAPE = 태블릿(PC와 동일한 인터랙션)
+   PORTRAIT  = 모바일
+══════════════════════════════════════ */
+
+/* ── 가로(태블릿) ── */
+@media (orientation: landscape) {
     nav { padding:40px 60px; }
 
     .close-project {
@@ -114,20 +127,21 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
         width:70px; height:50px; border-radius:4px; background-size:cover; background-position:center;
         opacity:0.3; transition:all 0.4s var(--ease); cursor:pointer !important;
         border:1px solid rgba(255,255,255,0.2); background-color:#333;
+        overflow:hidden; position:relative;
     }
     .pager-item:hover { opacity:0.7; }
     .pager-item.active { opacity:1; border-color:#fff; transform:scale(1.1); }
+    .pager-item img { width:100%; height:100%; object-fit:cover; display:block; pointer-events:none; }
 
     #stage {
         position:relative; display:flex; width:100vw; height:100vh;
         justify-content:center; align-items:center; perspective:2000px; overflow:hidden;
         transition:padding-top var(--transition), filter 1.5s var(--ease), background-color var(--transition);
-        user-select:none; /* 드래그 중 텍스트 선택 방지 */
+        user-select:none;
     }
     body:not(.is-started) #stage { filter:blur(20px) scale(1.1); }
     body.is-detail #stage { background-color:rgba(0,0,0,0.7); }
 
-    /* 드래그 중 커서 오버라이드 */
     #stage.is-dragging,
     #stage.is-dragging * { cursor:grabbing !important; }
 
@@ -162,7 +176,16 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
     }
     .project-strip.expanded .strip-img-wrapper { background-color:#000; }
 
-    .detail-photos { position:absolute; width:100%; height:100%; opacity:0; transition:opacity 0.6s var(--ease); z-index:2; }
+    /* 썸네일 img — still/anim 전환 */
+    .strip-thumb-img {
+        width:100%; height:100%; object-fit:cover;
+        display:block; pointer-events:none; position:absolute; inset:0;
+    }
+
+    .detail-photos {
+        position:absolute; width:100%; height:100%;
+        opacity:0; transition:opacity 0.6s var(--ease); z-index:2;
+    }
     .expanded .detail-photos { opacity:1; }
 
     .photo {
@@ -194,135 +217,17 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
         z-index:4000; opacity:0; transition:opacity 0.8s var(--ease) 0.3s;
     }
     body.is-detail #fixed-expanded-title { opacity:1; }
-    .expanded-title { font-size:16px; font-weight:400; letter-spacing:10px; color:#fff; text-transform:uppercase; line-height:1; }
+    .expanded-title {
+        font-size:16px; font-weight:400; letter-spacing:10px;
+        color:#fff; text-transform:uppercase; line-height:1;
+    }
 
-    #mobile-layout  { display:none !important; }
-    #tablet-layout  { display:none !important; }
+    /* 모바일 레이아웃 숨김 */
+    #mobile-layout { display:none !important; }
 }
 
-/* ── TABLET ── */
-@media (min-width: 769px) and (max-width: 1024px) {
-    nav { padding:28px 36px; }
-
-    .close-project {
-        position:fixed; top:28px; left:36px; z-index:6000; display:none;
-        font-size:12px; letter-spacing:2px; cursor:pointer !important;
-    }
-    body.is-detail .close-project { display:block; }
-    body.is-detail .logo { opacity:0; pointer-events:none; }
-    body.is-detail nav { pointer-events:none; }
-    body.is-detail .contact-trigger { pointer-events:auto; }
-
-    #stage                { display:none !important; }
-    #detail-pagers        { display:none !important; }
-    #fixed-expanded-title { display:none !important; }
-    #mobile-layout        { display:none !important; }
-
-    #tablet-layout { display:block; position:fixed; inset:0; }
-
-    #tab-gallery-wrap {
-        position:absolute; inset:0; overflow:hidden;
-        transition:opacity 0.5s var(--ease), visibility 0.5s;
-    }
-    body.is-detail #tab-gallery-wrap { opacity:0; visibility:hidden; pointer-events:none; }
-    body:not(.is-started) #tab-gallery-wrap { filter:blur(16px); }
-
-    #tab-track {
-        display:flex; flex-direction:row; align-items:center; height:100%;
-        padding:0 calc(50vw - 140px); gap:20px; will-change:transform;
-    }
-
-    .tab-card {
-        flex-shrink:0; width:280px; height:62vh; border-radius:var(--radius);
-        overflow:hidden; position:relative; opacity:0.45; cursor:pointer !important;
-        transition:opacity 0.3s ease, transform 0.3s ease;
-    }
-    .tab-card:active { opacity:0.9; transform:scale(0.97); }
-    .tab-card-bg { position:absolute; inset:0; background-size:cover; background-position:center; }
-    .tab-card-overlay { position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 50%); }
-    .tab-card-title {
-        position:absolute; bottom:16px; left:18px;
-        font-size:11px; font-weight:300; letter-spacing:5px;
-        text-transform:uppercase; color:#fff; opacity:0.85;
-    }
-
-    #tab-nav-border {
-        position:fixed; top:0; left:0; right:0; height:80px;
-        background:linear-gradient(to bottom, hsl(0,0%,18%) 0%, hsl(0,0%,18%) 65%, transparent 100%);
-        pointer-events:none; z-index:3500; opacity:0; transition:opacity 0.4s var(--ease);
-    }
-    body.is-detail #tab-nav-border { opacity:1; }
-
-    #tab-detail {
-        position:absolute; inset:0; background:var(--bg); z-index:2000;
-        display:flex; flex-direction:column; align-items:center; justify-content:center;
-        gap:24px; opacity:0; visibility:hidden;
-        transition:opacity 0.7s var(--ease), visibility 0.7s;
-        pointer-events:none; overflow:hidden;
-    }
-    body.is-detail #tab-detail { opacity:1; visibility:visible; pointer-events:auto; }
-
-    .tab-peek-card {
-        width:calc(100% - 120px); aspect-ratio:16/9;
-        border-radius:var(--radius); overflow:hidden; flex-shrink:0;
-        position:relative; opacity:0.22; cursor:pointer !important;
-        background-size:cover; background-position:center;
-        transition:opacity 0.6s var(--ease), transform 0.6s var(--ease);
-    }
-    .tab-peek-card:active { opacity:0.45; }
-    #tab-peek-top    { transform:scale(0.88); transform-origin:bottom center; }
-    #tab-peek-bottom { transform:scale(0.88); transform-origin:top center; }
-
-    .tab-peek-label {
-        position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-        font-size:9px; font-weight:300; letter-spacing:4px;
-        text-transform:uppercase; color:rgba(255,255,255,0.55);
-        background:rgba(0,0,0,0.5); pointer-events:none;
-    }
-
-    #tab-main-block { display:flex; flex-direction:column; align-items:center; gap:16px; width:100%; flex-shrink:0; }
-
-    #tab-viewer {
-        position:relative; width:calc(100% - 80px); aspect-ratio:16/9;
-        border-radius:var(--radius); overflow:hidden; flex-shrink:0;
-        z-index:2; box-shadow:0 20px 60px rgba(0,0,0,0.6);
-    }
-
-    .tab-slide {
-        position:absolute; inset:0; background-size:cover; background-position:center;
-        opacity:0; transition:opacity 0.65s var(--ease); pointer-events:none;
-    }
-    .tab-slide.active { opacity:1; pointer-events:auto; }
-
-    .tab-tap-zone { position:absolute; top:0; bottom:0; width:50%; z-index:5; cursor:pointer !important; }
-    #tab-tap-prev { left:0; }
-    #tab-tap-next { right:0; }
-
-    #tab-info-bar { width:calc(100% - 80px); display:flex; flex-direction:column; align-items:center; gap:10px; flex-shrink:0; }
-    #tab-detail-title {
-        font-size:12px; font-weight:300; letter-spacing:8px;
-        text-transform:uppercase; color:rgba(255,255,255,0.55); text-align:center;
-    }
-
-    #tab-thumbs {
-        display:flex; gap:8px; flex-wrap:nowrap; width:100%; overflow-x:auto; overflow-y:visible;
-        overscroll-behavior-x:contain; scrollbar-width:none; -ms-overflow-style:none;
-        padding:2px 2px 4px; box-sizing:border-box;
-    }
-    #tab-thumbs::-webkit-scrollbar { display:none; }
-
-    .tab-thumb {
-        width:52px; height:36px; border-radius:4px; flex-shrink:0;
-        background-size:cover; background-position:center; opacity:0.3;
-        border:1px solid rgba(255,255,255,0.1);
-        transition:opacity 0.3s var(--ease), border-color 0.3s, transform 0.3s var(--ease);
-        cursor:pointer !important;
-    }
-    .tab-thumb.active { opacity:1; border-color:#fff; transform:scale(1.1); }
-}
-
-/* ── MOBILE ── */
-@media (max-width: 768px) {
+/* ── 세로(모바일) ── */
+@media (orientation: portrait) {
     nav { padding:20px 24px; height:var(--nav-h-mob); }
     .logo { font-size:12px; letter-spacing:3px; }
     .contact-trigger { font-size:11px; letter-spacing:2px; }
@@ -337,10 +242,10 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
     body.is-detail nav { pointer-events:none; }
     body.is-detail .contact-trigger { pointer-events:auto; }
 
+    /* 가로 전용 요소 숨김 */
     #stage                { display:none !important; }
     #fixed-expanded-title { display:none !important; }
     #detail-pagers        { display:none !important; }
-    #tablet-layout        { display:none !important; }
 
     #mobile-layout { display:block; width:100vw; height:100vh; position:relative; }
 
@@ -373,6 +278,7 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
         position:absolute; inset:0; background-size:cover; background-position:center;
         transition:transform 0.55s var(--ease);
     }
+    .mob-card-bg img { width:100%; height:100%; object-fit:cover; display:block; }
     .mob-card:active .mob-card-bg { transform:scale(1.04); }
     .mob-card-overlay { position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 55%); }
     .mob-card-title {
@@ -421,6 +327,7 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
         opacity:0; transition:opacity 0.65s var(--ease); pointer-events:none;
     }
     .mob-slide.active { opacity:1; pointer-events:auto; }
+    .mob-slide img { width:100%; height:100%; object-fit:cover; display:block; }
 
     .mob-tap-zone { position:absolute; top:0; bottom:0; width:50%; z-index:5; cursor:pointer !important; }
     #mob-tap-prev { left:0; }
@@ -452,10 +359,11 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
     .mob-thumb {
         width:44px; height:30px; border-radius:4px; flex-shrink:0;
         background-size:cover; background-position:center; opacity:0.3;
-        border:1px solid rgba(255,255,255,0.1);
+        border:1px solid rgba(255,255,255,0.1); overflow:hidden;
         transition:opacity 0.3s var(--ease), border-color 0.3s, transform 0.3s var(--ease);
         cursor:pointer !important;
     }
+    .mob-thumb img { width:100%; height:100%; object-fit:cover; display:block; pointer-events:none; }
     .mob-thumb.active { opacity:1; border-color:#fff; transform:scale(1.1); }
 
     .contact-link { font-size:15px; letter-spacing:5px; }
@@ -488,36 +396,12 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
 
 <div id="toast">EMAIL COPIED</div>
 
-<!-- PC -->
+<!-- 가로(태블릿) — PC와 동일한 스트립 인터랙션 -->
 <div id="detail-pagers"></div>
 <div id="fixed-expanded-title"><div class="expanded-title"></div></div>
 <div id="stage"></div>
 
-<!-- TABLET -->
-<div id="tablet-layout">
-    <div id="tab-nav-border"></div>
-    <div id="tab-gallery-wrap"><div id="tab-track"></div></div>
-    <div id="tab-detail">
-        <div class="tab-peek-card" id="tab-peek-top" onclick="event.stopPropagation(); tabSwitchProject(-1)">
-            <div class="tab-peek-label" id="tab-peek-top-label"></div>
-        </div>
-        <div id="tab-main-block">
-            <div id="tab-viewer">
-                <div class="tab-tap-zone" id="tab-tap-prev"></div>
-                <div class="tab-tap-zone" id="tab-tap-next"></div>
-            </div>
-            <div id="tab-info-bar">
-                <div id="tab-detail-title"></div>
-                <div id="tab-thumbs"></div>
-            </div>
-        </div>
-        <div class="tab-peek-card" id="tab-peek-bottom" onclick="event.stopPropagation(); tabSwitchProject(1)">
-            <div class="tab-peek-label" id="tab-peek-bottom-label"></div>
-        </div>
-    </div>
-</div>
-
-<!-- MOBILE -->
+<!-- 세로(모바일) -->
 <div id="mobile-layout">
     <div id="mob-nav-border"></div>
     <div id="mob-grid-wrap"><div id="mob-grid"></div></div>
@@ -551,16 +435,99 @@ body.is-started nav { opacity:1; transition:opacity 1s var(--ease) 0.5s; }
 const TITLES = ['LUGIA','B-Project','C-Project','D-Project','E-Project',
                 'F-Project','G-Project','H-Project','I-Project','J-Project'];
 const LABELS = ['a','b','c','d','e','f','g','h','i','j'];
+
 const IMAGES = TITLES.map((_, i) => {
     const lbl = LABELS[i];
     const len = (i === 0) ? 7 : 10;
-    if (i === 0) return Array.from({length:len},(_,p)=>`assets/project-${lbl}/${lbl} (${p+1}).png`);
-    return Array.from({length:len},(_,p)=>`https://picsum.photos/seed/proj-${i}-${p}/1600/900`);
+    if (i === 0) {
+        return Array.from({length: len}, (_, p) =>
+            p === 0
+                ? `assets/project-${lbl}/${lbl} (1).webp`
+                : `assets/project-${lbl}/${lbl} (${p+1}).png`
+        );
+    }
+    return Array.from({length: len}, (_, p) =>
+        `https://picsum.photos/seed/proj-${i}-${p}/1600/900`
+    );
 });
 
-const body     = document.body;
-const isMobile = () => window.innerWidth <= 768;
-const isTablet = () => window.innerWidth >= 769 && window.innerWidth <= 1024;
+function isAnimated(projIdx, photoIdx) {
+    return projIdx === 0 && photoIdx === 0;
+}
+
+/* ─────────────────────────────────────
+   animated webp 첫 프레임 Canvas 추출
+───────────────────────────────────── */
+function extractFirstFrame(url) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+            try {
+                const c = document.createElement('canvas');
+                c.width  = img.naturalWidth  || 1600;
+                c.height = img.naturalHeight || 900;
+                c.getContext('2d').drawImage(img, 0, 0);
+                resolve(c.toDataURL('image/png'));
+            } catch(e) { resolve(url); }
+        };
+        img.onerror = () => resolve(url);
+        img.src = url;
+    });
+}
+
+const STILL_CACHE = {};
+
+(function preloadStills() {
+    TITLES.forEach((_, i) => {
+        if (!isAnimated(i, 0)) return;
+        extractFirstFrame(IMAGES[i][0]).then(dataUrl => {
+            STILL_CACHE[i] = dataUrl;
+            /* 이미 렌더된 썸네일 즉시 교체 */
+            document.querySelectorAll(`img[data-proj="${i}"][data-type="thumb"]`).forEach(el => {
+                el.dataset.still = dataUrl;
+                if (el.src !== el.dataset.anim) el.src = dataUrl;
+            });
+            /* strip-thumb-img 도 교체 */
+            document.querySelectorAll(`.strip-thumb-img`).forEach(el => {
+                if (el.dataset.proj === String(i)) {
+                    el.dataset.still = dataUrl;
+                    if (el.src !== el.dataset.anim) el.src = dataUrl;
+                }
+            });
+        });
+    });
+})();
+
+function makePhotoEl(url, projIdx, photoIdx, extraClass) {
+    const cls = `photo${extraClass ? ' ' + extraClass : ''}`;
+    if (isAnimated(projIdx, photoIdx)) {
+        return `<div class="${cls}" data-animated="true">
+                    <div class="photo-img-wrap">
+                        <img src="${url}" alt="" loading="lazy">
+                    </div>
+                </div>`;
+    }
+    return `<div class="${cls}" style="background-image:url('${url}')"></div>`;
+}
+
+function makeThumbBg(url, projIdx, photoIdx) {
+    if (isAnimated(projIdx, photoIdx)) return `<img src="${url}" alt="" loading="lazy">`;
+    return '';
+}
+function makeThumbStyle(url, projIdx, photoIdx) {
+    if (isAnimated(projIdx, photoIdx)) return '';
+    return `background-image:url('${url}')`;
+}
+
+const body        = document.body;
+const isLandscape = () => window.innerWidth > window.innerHeight;
+const isMobile    = () => !isLandscape();   /* portrait = 모바일 */
+
+/* orientation 전환 시 detail 해제 */
+window.addEventListener('resize', () => {
+    if (body.classList.contains('is-detail')) body.classList.remove('is-detail');
+});
 
 /* ═══════════════════════════════════════
    SHARED
@@ -579,30 +546,25 @@ function copyEmail(email) {
     });
 }
 function shrinkProject() {
-    if (isMobile())      mobShrink();
-    else if (isTablet()) tabShrink();
-    else                 pcShrink();
+    if (isMobile()) mobShrink();
+    else            pcShrink();
 }
 
-/* ═══════════════════════════════════════
-   PC
-═══════════════════════════════════════ */
+/* ════════════════════════════════════════════════
+   LANDSCAPE (태블릿) — 구 PC 인터랙션 그대로 유지
+════════════════════════════════════════════════ */
 (function pcInit() {
     const stage          = document.getElementById('stage');
     const pagerContainer = document.getElementById('detail-pagers');
     const expandedTitle  = document.querySelector('.expanded-title');
     let currentIndex     = -1;
 
-    /* ── 레이아웃 상수 ── */
-    const STRIP_W   = 195;  /* 스트립 너비 px */
-    const STRIP_GAP = 215;  /* center-to-center 간격 px */
+    const STRIP_W   = 195;
+    const STRIP_GAP = 215;
 
-    /* ── 드래그 스크롤 상태 ──
-       scrollOffsetX: 양수면 전체 스트립이 왼쪽으로 이동 (오른쪽 카드 노출)
-       실제 left = (중앙정렬 기준 left) - scrollOffsetX */
     let scrollOffsetX = 0;
-    let overX         = 0;   /* 끝 초과량 (바운스) */
-    let velX          = 0;   /* 마우스 속도 */
+    let overX         = 0;
+    let velX          = 0;
     let dragActive    = false;
     let dragStartX    = 0;
     let dragStartOff  = 0;
@@ -617,151 +579,118 @@ function shrinkProject() {
     const RESIST         = 0.26;
     const DRAG_THRESHOLD = 4;
 
-    /* 스크롤 가능 최대 오프셋:
-       전체 스트립 너비가 뷰포트보다 넓어지는 만큼만 허용 */
     function maxOffset() {
         const totalW = TITLES.length * STRIP_GAP;
         const vp     = window.innerWidth;
         return Math.max(0, (totalW - vp) / 2 + STRIP_W / 2 + 50);
     }
-
-    /* i번째 스트립의 "기준 left" (offset=0, 중앙정렬) */
     function baseLeft(i) {
         const half = (TITLES.length - 1) / 2;
         return window.innerWidth / 2 + (i - half) * STRIP_GAP;
     }
-
-    /* 현재 scrollOffsetX+overX를 모든 기본 스트립에 즉시 반영 */
     function applyScroll() {
         if (body.classList.contains('is-detail')) return;
         strips.forEach((s, i) => {
             if (s.classList.contains('expanded') || s.classList.contains('peek')) return;
-            /* 트랜지션 없이 직접 */
-            const prevTrans = s.style.transition;
+            const prev = s.style.transition;
             s.style.transition = 'none';
             s.style.left = `${baseLeft(i) - (scrollOffsetX + overX)}px`;
-            /* 다음 프레임에 트랜지션 복원 (hover 효과 등 유지) */
-            requestAnimationFrame(() => { s.style.transition = prevTrans; });
+            requestAnimationFrame(() => { s.style.transition = prev; });
         });
     }
 
-    /* ── stage HTML 생성 ── */
-    stage.innerHTML = TITLES.map((t,i) => `
+    /* 썸네일: animated webp → 정지 프레임 기본, hover 시 webp */
+    function makeStripThumbBg(projIdx) {
+        if (isAnimated(projIdx, 0)) {
+            const stillUrl = STILL_CACHE[projIdx] || IMAGES[projIdx][0];
+            const animUrl  = IMAGES[projIdx][0];
+            return `<img class="strip-thumb-img"
+                         src="${stillUrl}"
+                         data-still="${stillUrl}"
+                         data-anim="${animUrl}"
+                         data-proj="${projIdx}"
+                         alt=""
+                         style="width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;position:absolute;inset:0;">`;
+        }
+        return '';
+    }
+    function makeStripThumbStyle(projIdx) {
+        if (isAnimated(projIdx, 0)) return '';
+        return `background-image:url('${IMAGES[projIdx][0]}')`;
+    }
+
+    stage.innerHTML = TITLES.map((t, i) => `
         <div class="project-strip strip-${i}" data-index="${i}">
             <div class="thumb-title">${t}</div>
-            <div class="strip-img-wrapper" style="background-image:url('${IMAGES[i][0]}')">
+            <div class="strip-img-wrapper" style="${makeStripThumbStyle(i)}">
+                ${makeStripThumbBg(i)}
                 <div class="photo-nav photo-nav-prev" onclick="event.stopPropagation();pcNav(${i},-1)">&#10216;</div>
                 <div class="photo-nav photo-nav-next" onclick="event.stopPropagation();pcNav(${i},1)">&#10217;</div>
                 <div class="detail-photos">
-                    ${IMAGES[i].map((url,p)=>`<div class="photo ${p===0?'active':''}" style="background-image:url('${url}')"></div>`).join('')}
+                    ${IMAGES[i].map((url, p) => makePhotoEl(url, i, p, p===0?'active':'')).join('')}
                 </div>
             </div>
         </div>`).join('');
 
     const strips = document.querySelectorAll('.project-strip');
+
+    /* hover → webp 재생 / leave → 정지 프레임 */
+    strips.forEach(s => {
+        const img = s.querySelector('img.strip-thumb-img');
+        if (!img) return;
+        s.addEventListener('mouseenter', () => {
+            if (body.classList.contains('is-detail')) return;
+            img.src = img.dataset.anim;
+        });
+        s.addEventListener('mouseleave', () => {
+            img.src = img.dataset.still;
+        });
+    });
+
     layoutDefault();
 
-    /* ── mousedown: 드래그 시작 ── */
+    /* ── 드래그 스크롤 ── */
     stage.addEventListener('mousedown', e => {
-        if (body.classList.contains('is-detail') || isMobile() || isTablet()) return;
-        dragActive   = true;
-        dragMoved    = false;
-        dragStartX   = e.clientX;
-        dragStartOff = scrollOffsetX;
-        lastMouseX   = e.clientX;
-        velX         = 0;
-        overX        = 0;
+        if (body.classList.contains('is-detail') || isMobile()) return;
+        dragActive = true; dragMoved = false;
+        dragStartX = e.clientX; dragStartOff = scrollOffsetX;
+        lastMouseX = e.clientX; velX = 0; overX = 0;
         if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
         stage.classList.add('is-dragging');
         e.preventDefault();
     });
-
-    /* ── mousemove: window에 걸어야 stage 밖으로 나가도 추적 ── */
     window.addEventListener('mousemove', e => {
         if (!dragActive) return;
-        const dx = lastMouseX - e.clientX; /* 오른쪽 이동 → 음수, 왼쪽 이동 → 양수 */
-        lastMouseX = e.clientX;
-        velX = dx;
-
+        const dx = lastMouseX - e.clientX; lastMouseX = e.clientX; velX = dx;
         if (Math.abs(e.clientX - dragStartX) > DRAG_THRESHOLD) dragMoved = true;
-
-        const totalDelta = dragStartX - e.clientX; /* 왼쪽으로 드래그하면 양수 */
-        const raw        = dragStartOff + totalDelta;
-        const max        = maxOffset();
-
-        if (raw < 0) {
-            scrollOffsetX = 0;
-            overX = raw * RESIST;
-            if (overX < -MAX_OVER) overX = -MAX_OVER;
-        } else if (raw > max) {
-            scrollOffsetX = max;
-            overX = (raw - max) * RESIST;
-            if (overX > MAX_OVER) overX = MAX_OVER;
-        } else {
-            scrollOffsetX = raw;
-            overX = 0;
-        }
-
+        const raw = dragStartOff + (dragStartX - e.clientX);
+        const max = maxOffset();
+        if (raw < 0) { scrollOffsetX = 0; overX = Math.max(-MAX_OVER, raw * RESIST); }
+        else if (raw > max) { scrollOffsetX = max; overX = Math.min(MAX_OVER, (raw - max) * RESIST); }
+        else { scrollOffsetX = raw; overX = 0; }
         applyScroll();
     });
-
-    /* ── mouseup: 관성 + 바운스 복원 ── */
     window.addEventListener('mouseup', () => {
         if (!dragActive) return;
-        dragActive = false;
-        stage.classList.remove('is-dragging');
-
-        if (!dragMoved) { overX = 0; return; } /* 클릭이었으면 바로 종료 */
-
-        /* 관성 + 스프링 루프 */
+        dragActive = false; stage.classList.remove('is-dragging');
+        if (!dragMoved) { overX = 0; return; }
         (function loop() {
             let active = false;
-            const max  = maxOffset();
-
-            /* 관성 */
-            if (Math.abs(velX) > 0.25) {
-                scrollOffsetX = Math.max(0, Math.min(max, scrollOffsetX + velX));
-                velX *= FRICTION;
-                active = true;
-            } else { velX = 0; }
-
-            /* 경계 이탈 → 바운스 */
-            if (scrollOffsetX < 0) {
-                overX += -scrollOffsetX * RESIST;
-                scrollOffsetX = 0;
-                velX *= -0.25;
-                active = true;
-            } else if (scrollOffsetX > max) {
-                overX += (scrollOffsetX - max) * RESIST;
-                scrollOffsetX = max;
-                velX *= -0.25;
-                active = true;
-            }
-
-            /* 스프링 복원 */
-            if (Math.abs(overX) > 0.15) {
-                overX -= overX * SPRING_STIFF * 5;
-                overX *= SPRING_DAMP;
-                active = true;
-            } else { overX = 0; }
-
+            const max = maxOffset();
+            if (Math.abs(velX) > 0.25) { scrollOffsetX = Math.max(0, Math.min(max, scrollOffsetX + velX)); velX *= FRICTION; active = true; } else velX = 0;
+            if (scrollOffsetX < 0) { overX += -scrollOffsetX * RESIST; scrollOffsetX = 0; velX *= -0.25; active = true; }
+            else if (scrollOffsetX > max) { overX += (scrollOffsetX - max) * RESIST; scrollOffsetX = max; velX *= -0.25; active = true; }
+            if (Math.abs(overX) > 0.15) { overX -= overX * SPRING_STIFF * 5; overX *= SPRING_DAMP; active = true; } else overX = 0;
             applyScroll();
             if (active) rafId = requestAnimationFrame(loop);
         })();
     });
+    window.addEventListener('mouseleave', () => { if (dragActive) { dragActive = false; stage.classList.remove('is-dragging'); } });
 
-    /* 창 밖 mouseup 처리 */
-    window.addEventListener('mouseleave', () => {
-        if (dragActive) {
-            dragActive = false;
-            stage.classList.remove('is-dragging');
-        }
-    });
-
-    /* ── 스트립 클릭 (드래그와 구분) ── */
+    /* ── 클릭 ── */
     strips.forEach(s => s.addEventListener('click', function(e) {
-        if (!body.classList.contains('is-started') || isMobile() || isTablet()) return;
-        if (dragMoved) return; /* 드래그였으면 클릭 무시 */
+        if (!body.classList.contains('is-started') || isMobile()) return;
+        if (dragMoved) return;
         const idx = parseInt(this.dataset.index);
         if (this.classList.contains('expanded')) {
             const r = this.getBoundingClientRect();
@@ -769,22 +698,16 @@ function shrinkProject() {
         } else { showProject(idx); }
     }));
 
-    /* ── 레이아웃: 기본 (갤러리) ── */
     function layoutDefault() {
         strips.forEach((s, i) => {
-            s.style.left      = `${baseLeft(i) - scrollOffsetX}px`;
-            s.style.top       = '50%';
-            s.style.width     = `${STRIP_W}px`;
-            s.style.height    = 'var(--strip-height)';
-            s.style.transform = 'translate(-50%,-50%)';
-            s.style.opacity   = '0.4';
-            s.style.zIndex    = '10';
-            s.style.pointerEvents = 'auto';
-            s.classList.remove('expanded', 'peek');
+            s.style.left = `${baseLeft(i) - scrollOffsetX}px`;
+            s.style.top = '50%'; s.style.width = `${STRIP_W}px`;
+            s.style.height = 'var(--strip-height)'; s.style.transform = 'translate(-50%,-50%)';
+            s.style.opacity = '0.4'; s.style.zIndex = '10'; s.style.pointerEvents = 'auto';
+            s.classList.remove('expanded','peek');
         });
     }
 
-    /* ── 레이아웃: 상세 ── */
     function layoutDetail() {
         const n = TITLES.length;
         strips.forEach((s, i) => {
@@ -805,7 +728,7 @@ function shrinkProject() {
                 s.style.opacity='0.25'; s.style.zIndex='1500'; s.style.pointerEvents='auto';
                 s.classList.add('peek'); s.classList.remove('expanded');
             } else {
-                const offL = i===(currentIndex-2+n)%n ? '-20vw' : i===(currentIndex+2)%n ? '120vw' : '50vw';
+                const offL = i===(currentIndex-2+n)%n?'-20vw':i===(currentIndex+2)%n?'120vw':'50vw';
                 s.style.left=offL; s.style.width='12vw'; s.style.height='var(--strip-height)';
                 s.style.transform='translate(-50%,-50%) scale(0.5)';
                 s.style.opacity='0'; s.style.zIndex='1000'; s.style.pointerEvents='none';
@@ -816,17 +739,21 @@ function shrinkProject() {
 
     function showProject(index) {
         const entering = !body.classList.contains('is-detail');
-        currentIndex   = index;
+        currentIndex = index;
         if (expandedTitle) expandedTitle.innerText = TITLES[index];
         if (entering) body.classList.add('is-detail');
-        const photos = strips[index].querySelectorAll('.photo');
-        photos.forEach((p,i) => p.classList.toggle('active', i===0));
-        pagerContainer.innerHTML = Array.from(photos).map((ph,pIdx)=>`
-            <div class="pager-item ${pIdx===0?'active':''}" style="${ph.getAttribute('style')}"
-                 onclick="event.stopPropagation();pcJump(${index},${pIdx})"></div>`).join('');
+        strips[index].querySelectorAll('.photo').forEach((p,i) => p.classList.toggle('active', i===0));
+
+        pagerContainer.innerHTML = IMAGES[index].map((url, pIdx) => {
+            const ts = makeThumbStyle(url, index, pIdx);
+            const ti = makeThumbBg(url, index, pIdx);
+            return `<div class="pager-item ${pIdx===0?'active':''}" style="${ts}"
+                         onclick="event.stopPropagation();pcJump(${index},${pIdx})">${ti}</div>`;
+        }).join('');
+
         if (entering) {
-            strips.forEach((s,i)=>{
-                if(i===index){
+            strips.forEach((s, i) => {
+                if (i === index) {
                     s.style.left='50vw'; s.style.width='calc(var(--strip-height)*16/9)';
                     s.style.height='var(--strip-height)'; s.style.transform='translate(-50%,-50%)';
                     s.style.opacity='1'; s.style.zIndex='3000'; s.style.pointerEvents='auto';
@@ -836,12 +763,12 @@ function shrinkProject() {
                     s.style.opacity='0'; s.style.pointerEvents='none';
                 }
             });
-            setTimeout(()=>{ strips.forEach(s=>{s.style.transition='';}); layoutDetail(); }, 600);
+            setTimeout(() => { strips.forEach(s => { s.style.transition=''; }); layoutDetail(); }, 600);
         } else { layoutDetail(); }
     }
 
-    window.pcNav  = (idx,dir) => rotate(strips[idx],dir);
-    window.pcJump = (projIdx,photoIdx) => {
+    window.pcNav  = (idx, dir) => rotate(strips[idx], dir);
+    window.pcJump = (projIdx, photoIdx) => {
         strips[projIdx].querySelectorAll('.photo').forEach((p,i)=>p.classList.toggle('active',i===photoIdx));
         pagerContainer.querySelectorAll('.pager-item').forEach((pg,i)=>pg.classList.toggle('active',i===photoIdx));
     };
@@ -850,179 +777,49 @@ function shrinkProject() {
         const photos = strip.querySelectorAll('.photo');
         const pagers = pagerContainer.querySelectorAll('.pager-item');
         if (!pagers.length) return;
-        let idx = Array.from(photos).findIndex(p=>p.classList.contains('active'));
+        let idx = Array.from(photos).findIndex(p => p.classList.contains('active'));
         photos[idx].classList.remove('active'); if(pagers[idx]) pagers[idx].classList.remove('active');
-        idx = (idx+dir+photos.length) % photos.length;
+        idx = (idx + dir + photos.length) % photos.length;
         photos[idx].classList.add('active'); if(pagers[idx]) pagers[idx].classList.add('active');
     }
 
     window.pcShrink = function() {
         body.classList.remove('is-detail');
         const old = currentIndex; currentIndex = -1;
-        /* 선택된 스트립 복귀 */
-        strips[old].style.transition = '';
-        strips[old].style.left      = `${baseLeft(old) - scrollOffsetX}px`;
-        strips[old].style.width     = `${STRIP_W}px`;
-        strips[old].style.height    = 'var(--strip-height)';
-        strips[old].style.transform = 'translate(-50%,-50%)';
-        strips[old].style.opacity   = '0.4';
-        strips[old].style.zIndex    = '10';
-        strips[old].style.pointerEvents = 'auto';
+        strips[old].style.transition='';
+        strips[old].style.left=`${baseLeft(old)-scrollOffsetX}px`;
+        strips[old].style.width=`${STRIP_W}px`; strips[old].style.height='var(--strip-height)';
+        strips[old].style.transform='translate(-50%,-50%)'; strips[old].style.opacity='0.4';
+        strips[old].style.zIndex='10'; strips[old].style.pointerEvents='auto';
         strips[old].classList.remove('expanded','peek');
-        /* 나머지 스트립 랜덤 복귀 애니메이션 */
+
         const others = [];
-        strips.forEach((s,i)=>{
-            if(i===old) return;
-            s.style.transition = 'none';
-            s.style.left       = `${baseLeft(i) - scrollOffsetX}px`;
-            s.style.width      = `${STRIP_W}px`;
-            s.style.height     = 'var(--strip-height)';
-            s.style.zIndex     = '10'; s.style.opacity='0';
-            s.style.top        = Math.random()>0.5 ? 'calc(50% - 100px)' : 'calc(50% + 100px)';
-            s.style.transform  = 'translate(-50%,-50%)';
-            s.style.pointerEvents = 'none';
-            s.classList.remove('expanded','peek');
-            others.push(s);
+        strips.forEach((s, i) => {
+            if (i===old) return;
+            s.style.transition='none'; s.style.left=`${baseLeft(i)-scrollOffsetX}px`;
+            s.style.width=`${STRIP_W}px`; s.style.height='var(--strip-height)';
+            s.style.zIndex='10'; s.style.opacity='0';
+            s.style.top = Math.random()>0.5?'calc(50% - 100px)':'calc(50% + 100px)';
+            s.style.transform='translate(-50%,-50%)'; s.style.pointerEvents='none';
+            s.classList.remove('expanded','peek'); others.push(s);
         });
         for(let i=others.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[others[i],others[j]]=[others[j],others[i]];}
         requestAnimationFrame(()=>{ requestAnimationFrame(()=>{
-            others.forEach((s,idx)=>{
-                const delay = (idx*(1.0/(others.length-1))).toFixed(2);
-                s.style.transition = `top 0.5s var(--ease) ${delay}s, opacity 0.5s var(--ease) ${delay}s`;
+            others.forEach((s, idx)=>{
+                const delay=(idx*(1.0/(others.length-1))).toFixed(2);
+                s.style.transition=`top 0.5s var(--ease) ${delay}s, opacity 0.5s var(--ease) ${delay}s`;
                 s.style.top='50%'; s.style.opacity='0.4'; s.style.pointerEvents='auto';
-                setTimeout(()=>{ s.style.transition=''; }, (parseFloat(delay)+0.5)*1000+100);
+                setTimeout(()=>{ s.style.transition=''; },(parseFloat(delay)+0.5)*1000+100);
             });
         }); });
-        pagerContainer.innerHTML = '';
+        pagerContainer.innerHTML='';
         document.querySelectorAll('.photo').forEach(p=>p.classList.toggle('active',p===p.parentElement.querySelector('.photo')));
     };
 })();
 
 
 /* ═══════════════════════════════════════
-   TABLET
-═══════════════════════════════════════ */
-(function tabInit() {
-    const track      = document.getElementById('tab-track');
-    const wrap       = document.getElementById('tab-gallery-wrap');
-    const viewer     = document.getElementById('tab-viewer');
-    const mainBlock  = document.getElementById('tab-main-block');
-    const thumbsEl   = document.getElementById('tab-thumbs');
-    const titleEl    = document.getElementById('tab-detail-title');
-    const tapPrev    = document.getElementById('tab-tap-prev');
-    const tapNext    = document.getElementById('tab-tap-next');
-    const peekTop    = document.getElementById('tab-peek-top');
-    const peekBot    = document.getElementById('tab-peek-bottom');
-    const peekTopLbl = document.getElementById('tab-peek-top-label');
-    const peekBotLbl = document.getElementById('tab-peek-bottom-label');
-    const EASE='cubic-bezier(0.23, 1, 0.32, 1)', DUR=750;
-    let curProject=-1, curPhoto=0, switching=false;
-
-    TITLES.forEach((t,i) => {
-        const card = document.createElement('div');
-        card.className = 'tab-card';
-        card.innerHTML = `
-            <div class="tab-card-bg" style="background-image:url('${IMAGES[i][0]}')"></div>
-            <div class="tab-card-overlay"></div>
-            <div class="tab-card-title">${t}</div>`;
-        card.addEventListener('click', () => {
-            if (!body.classList.contains('is-started')) return;
-            tabShowProject(i);
-        });
-        track.appendChild(card);
-    });
-
-    (function touchScroll() {
-        const CARD_W=280,GAP=20,FRICTION=0.88,SPRING_K=0.14,SPRING_D=0.72,MAX_OVER=80,RESIST=0.25;
-        let posX=0,velX=0,overX=0,touching=false,lastTX=0,rafId=null;
-        function maxPosX(){
-            const pad=window.innerWidth/2-CARD_W/2;
-            return Math.max(0,pad*2+TITLES.length*(CARD_W+GAP)-GAP-window.innerWidth);
-        }
-        function apply(){
-            track.style.transform=`translateX(${-(Math.max(0,Math.min(maxPosX(),posX))+overX)}px)`;
-        }
-        wrap.addEventListener('touchstart',e=>{
-            if(body.classList.contains('is-detail'))return;
-            touching=true;lastTX=e.touches[0].clientX;velX=0;overX=0;
-            if(rafId){cancelAnimationFrame(rafId);rafId=null;}
-        },{passive:true});
-        wrap.addEventListener('touchmove',e=>{
-            if(!touching||body.classList.contains('is-detail'))return;
-            const dx=lastTX-e.touches[0].clientX;lastTX=e.touches[0].clientX;
-            const max=maxPosX();
-            if((posX<=0&&dx<0)||(posX>=max&&dx>0)){overX+=dx*RESIST;overX=Math.max(-MAX_OVER,Math.min(MAX_OVER,overX));}
-            else{posX=Math.max(0,Math.min(max,posX+dx));velX=dx;}
-            apply();
-        },{passive:true});
-        wrap.addEventListener('touchend',()=>{
-            if(!touching)return;touching=false;
-            (function loop(){
-                let active=false;
-                if(Math.abs(velX)>0.4){posX=Math.max(0,Math.min(maxPosX(),posX+velX));velX*=FRICTION;active=true;}else velX=0;
-                if(Math.abs(overX)>0.4){overX-=overX*SPRING_K*5;overX*=SPRING_D;active=true;}else overX=0;
-                apply();
-                if(active)rafId=requestAnimationFrame(loop);
-            })();
-        },{passive:true});
-    })();
-
-    tapPrev.addEventListener('click',()=>tabRotatePhoto(-1));
-    tapNext.addEventListener('click',()=>tabRotatePhoto(1));
-
-    function updatePeek(index){
-        const n=TITLES.length,prev=(index-1+n)%n,next=(index+1)%n;
-        peekTop.style.backgroundImage=`url('${IMAGES[prev][0]}')`;
-        peekBot.style.backgroundImage=`url('${IMAGES[next][0]}')`;
-        peekTopLbl.textContent=TITLES[prev];peekBotLbl.textContent=TITLES[next];
-    }
-    function loadContent(index){
-        titleEl.textContent=TITLES[index];
-        viewer.querySelectorAll('.tab-slide').forEach(el=>el.remove());
-        IMAGES[index].forEach((url,p)=>{
-            const s=document.createElement('div');
-            s.className='tab-slide'+(p===0?' active':'');
-            s.style.backgroundImage=`url('${url}')`;
-            viewer.insertBefore(s,tapPrev);
-        });
-        thumbsEl.innerHTML=IMAGES[index].map((url,p)=>
-            `<div class="tab-thumb ${p===0?'active':''}" style="background-image:url('${url}')"
-             onclick="event.stopPropagation();tabJumpPhoto(${p})"></div>`).join('');
-        updatePeek(index);
-    }
-    function tabShowProject(index){curProject=index;curPhoto=0;body.classList.add('is-detail');loadContent(index);}
-    window.tabJumpPhoto=function(pi){
-        viewer.querySelectorAll('.tab-slide').forEach((s,i)=>s.classList.toggle('active',i===pi));
-        thumbsEl.querySelectorAll('.tab-thumb').forEach((t,i)=>t.classList.toggle('active',i===pi));
-        curPhoto=pi;
-    };
-    function tabRotatePhoto(dir){const c=viewer.querySelectorAll('.tab-slide').length;tabJumpPhoto((curPhoto+dir+c)%c);}
-    window.tabSwitchProject=function(dir){
-        if(switching)return;switching=true;
-        const ni=(curProject+dir+TITLES.length)%TITLES.length;
-        const outY=dir>0?'-55px':'55px';
-        ss(mainBlock,{transition:`transform ${DUR}ms ${EASE},opacity ${Math.round(DUR*.65)}ms ${EASE}`,transform:`translateY(${outY})`,opacity:'0'});
-        [peekTop,peekBot].forEach(pk=>ss(pk,{transition:`transform ${DUR}ms ${EASE},opacity ${Math.round(DUR*.55)}ms ${EASE}`,transform:`scale(0.88) translateY(${dir>0?'-18px':'18px'})`,opacity:'0'}));
-        setTimeout(()=>{
-            curProject=ni;curPhoto=0;loadContent(ni);
-            const inY=dir>0?'55px':'-55px';
-            ss(mainBlock,{transition:'none',transform:`translateY(${inY})`,opacity:'0'});
-            [peekTop,peekBot].forEach(pk=>ss(pk,{transition:'none',transform:`scale(0.88) translateY(${dir>0?'18px':'-18px'})`,opacity:'0'}));
-            requestAnimationFrame(()=>requestAnimationFrame(()=>{
-                ss(mainBlock,{transition:`transform ${DUR}ms ${EASE},opacity ${Math.round(DUR*.8)}ms ${EASE}`,transform:'translateY(0)',opacity:'1'});
-                [peekTop,peekBot].forEach(pk=>ss(pk,{transition:`transform ${DUR}ms ${EASE},opacity ${Math.round(DUR*.8)}ms ${EASE}`,transform:'scale(0.88)',opacity:'0.25'}));
-                setTimeout(()=>{cs(mainBlock);cs(peekTop);cs(peekBot);switching=false;},DUR+60);
-            }));
-        },DUR*.42);
-    };
-    window.tabShrink=function(){body.classList.remove('is-detail');curProject=-1;cs(mainBlock);cs(peekTop);cs(peekBot);switching=false;};
-    function ss(el,p){Object.assign(el.style,p);}
-    function cs(el){el.style.transition='';el.style.transform='';el.style.opacity='';}
-})();
-
-
-/* ═══════════════════════════════════════
-   MOBILE
+   PORTRAIT (모바일)
 ═══════════════════════════════════════ */
 (function mobInit() {
     const grid       = document.getElementById('mob-grid');
@@ -1039,34 +836,52 @@ function shrinkProject() {
     const EASE='cubic-bezier(0.23, 1, 0.32, 1)', DUR=750;
     let curProject=-1, curPhoto=0, switching=false;
 
-    TITLES.forEach((t,i)=>{
-        const card=document.createElement('div');
-        card.className='mob-card';
-        card.innerHTML=`<div class="mob-card-bg" style="background-image:url('${IMAGES[i][0]}')"></div>
-            <div class="mob-card-overlay"></div><div class="mob-card-title">${t}</div>`;
-        card.addEventListener('click',()=>{if(!body.classList.contains('is-started'))return;showProject(i);});
+    TITLES.forEach((t, i) => {
+        const card = document.createElement('div');
+        card.className = 'mob-card';
+        const url0 = IMAGES[i][0];
+        const bgHtml = isAnimated(i, 0)
+            ? `<div class="mob-card-bg"><img src="${url0}" alt=""></div>`
+            : `<div class="mob-card-bg" style="background-image:url('${url0}')"></div>`;
+        card.innerHTML = `${bgHtml}<div class="mob-card-overlay"></div><div class="mob-card-title">${t}</div>`;
+        card.addEventListener('click', () => { if(!body.classList.contains('is-started')||!isMobile())return; showProject(i); });
         grid.appendChild(card);
     });
-    tapPrev.addEventListener('click',()=>rotatePhoto(-1));
-    tapNext.addEventListener('click',()=>rotatePhoto(1));
-    function updatePeek(index){
-        const n=TITLES.length,prev=(index-1+n)%n,next=(index+1)%n;
-        peekTop.style.backgroundImage=`url('${IMAGES[prev][0]}')`;
-        peekBot.style.backgroundImage=`url('${IMAGES[next][0]}')`;
-        peekTopLbl.textContent=TITLES[prev];peekBotLbl.textContent=TITLES[next];
+
+    tapPrev.addEventListener('click', () => rotatePhoto(-1));
+    tapNext.addEventListener('click', () => rotatePhoto(1));
+
+    function setPeekBg(el, projIdx) {
+        const url = IMAGES[projIdx][0];
+        if (isAnimated(projIdx, 0)) {
+            el.style.backgroundImage = '';
+            let img = el.querySelector('img.peek-img');
+            if (!img) { img=document.createElement('img'); img.className='peek-img'; img.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;'; el.insertBefore(img,el.firstChild); }
+            img.src = url;
+        } else {
+            el.style.backgroundImage = `url('${url}')`;
+            const img = el.querySelector('img.peek-img'); if(img) img.remove();
+        }
     }
-    function loadContent(index){
+    function updatePeek(index) {
+        const n=TITLES.length,prev=(index-1+n)%n,next=(index+1)%n;
+        setPeekBg(peekTop,prev); setPeekBg(peekBot,next);
+        peekTopLbl.textContent=TITLES[prev]; peekBotLbl.textContent=TITLES[next];
+    }
+    function loadContent(index) {
         titleEl.textContent=TITLES[index];
         viewer.querySelectorAll('.mob-slide').forEach(el=>el.remove());
         IMAGES[index].forEach((url,p)=>{
             const s=document.createElement('div');
             s.className='mob-slide'+(p===0?' active':'');
-            s.style.backgroundImage=`url('${url}')`;
+            if(isAnimated(index,p)){const img=document.createElement('img');img.src=url;img.alt='';s.appendChild(img);}
+            else s.style.backgroundImage=`url('${url}')`;
             viewer.insertBefore(s,tapPrev);
         });
-        thumbsEl.innerHTML=IMAGES[index].map((url,p)=>
-            `<div class="mob-thumb ${p===0?'active':''}" style="background-image:url('${url}')"
-             onclick="event.stopPropagation();mobJumpPhoto(${p})"></div>`).join('');
+        thumbsEl.innerHTML=IMAGES[index].map((url,p)=>{
+            const style=makeThumbStyle(url,index,p),inner=makeThumbBg(url,index,p);
+            return `<div class="mob-thumb ${p===0?'active':''}" style="${style}" onclick="event.stopPropagation();mobJumpPhoto(${p})">${inner}</div>`;
+        }).join('');
         updatePeek(index);
     }
     function showProject(index){curProject=index;curPhoto=0;body.classList.add('is-detail');loadContent(index);}
@@ -1078,8 +893,7 @@ function shrinkProject() {
     function rotatePhoto(dir){const c=viewer.querySelectorAll('.mob-slide').length;mobJumpPhoto((curPhoto+dir+c)%c);}
     window.mobSwitchProject=function(dir){
         if(switching)return;switching=true;
-        const ni=(curProject+dir+TITLES.length)%TITLES.length;
-        const outY=dir>0?'-55px':'55px';
+        const ni=(curProject+dir+TITLES.length)%TITLES.length,outY=dir>0?'-55px':'55px';
         ss(mainBlock,{transition:`transform ${DUR}ms ${EASE},opacity ${Math.round(DUR*.65)}ms ${EASE}`,transform:`translateY(${outY})`,opacity:'0'});
         [peekTop,peekBot].forEach(pk=>ss(pk,{transition:`transform ${DUR}ms ${EASE},opacity ${Math.round(DUR*.55)}ms ${EASE}`,transform:`scale(0.88) translateY(${dir>0?'-18px':'18px'})`,opacity:'0'}));
         setTimeout(()=>{
